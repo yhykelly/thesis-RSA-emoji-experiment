@@ -13,7 +13,7 @@ jobs:
       max-parallel: 1
       matrix:
         folder:
-          - ./
+          - experiments/exp1-litSemantics/
 
     runs-on: ubuntu-latest
     steps:
