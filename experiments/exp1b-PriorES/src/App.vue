@@ -20,58 +20,39 @@
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
+    
+
     <!-- We iterate over our experiment trials -->
-
-    <!-- and display a screen with a slider rating task
+    
+      <!-- and display a screen with a slider rating task
              using the built-in SliderScreen component -->
-    <Screen v-for="(trial, i) in trials" :key="i">
-      <Slide>
-        <p>
-          <strong>{{ trial.context }}</strong>
-        </p>
-         <p>
-          arousal is <strong>{{ trial.arousal }}</strong>
-        </p>
-        <p>
-          She gave a rating of <strong>{{ trial.stars }}</strong> stars.
-        </p>
-        <p>
-          On a scale from 1 to 9, rate how you think Alice would feel in her
-          emotions in the following two aspects:
-        </p>
-
-        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="Alice felt very calm/relaxed"
-          right="Alice felt very aroused/excited"
-          :response.sync="trial.arousal"
-        />
-
-        <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="Alice felt very unhappy"
-          right="Alice felt very happy"
-          :response.sync="trial.valence"
-        />
-
-        <button
-          v-if="trial.arousal != 0 && trial.valence != 0"
-          style="margin-top: 18px"
-          :disabled="trial.arousal === 0 || trial.valence === 0"
-          @click="
-            $magpie.measurements.context = trial.context;
-            $magpie.measurements.stars = trial.stars;
-            $magpie.measurements.arousal = trial.arousal;
-            $magpie.measurements.valence = trial.valence;
-            $magpie.saveAndNextScreen();
-          "
-        >
-          Next
-        </button>
-      </Slide>
-    </Screen>
+      <template v-for="(trial, i) in makeTrials(10)">
+             <RatingScreen
+        :key="i"
+        :count = "9"
+        option-left="not applicable at all"
+        option-right="very applicable"
+      >
+        
+        <!-- <template #stimulus>
+          <img src="img/angry.png" />
+        </template> -->
+        <template #stimulus>
+          <p>
+            <strong>{{ trial.context }}</strong>
+          </p>
+          <p>
+            She gave a rating of <strong>{{ trial.stars }}</strong> out of 5
+            stars.
+          </p>
+          <p>
+            On a scale from 1 to 9, how applicable do you think the word <strong>"{{ trial.adj}}"</strong> is to describe the rating?
+          </p>
+        </template>
+        
+      </RatingScreen>
+    </template>
+   
 
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
@@ -115,16 +96,14 @@ const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
 export default {
   name: 'AppExperiment1',
   data() {
-    return { trials: this.makeTrials(10) };
+    return {};
   },
   methods: {
     makeTrials(n) {
       return _.times(n, () => ({
         context: _.sample(CONTEXTS),
         stars: _.sample(STARS),
-        adj: _.sample(ADJECTIVES),
-        arousal: 0,
-        valence: 0
+        adj: _.sample(ADJECTIVES)
       }));
     }
   }
