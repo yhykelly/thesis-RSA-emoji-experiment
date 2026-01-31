@@ -17,6 +17,8 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - run: echo "runner works"
+      
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
 
