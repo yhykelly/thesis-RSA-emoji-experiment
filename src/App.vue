@@ -3,8 +3,8 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating a scale for feedback words to
-        understand how people use different adjectives to describe ratings.
+        In this study, we are calibrating a scale to understand how people
+        emotionally react to ratings.
       </p>
       <p>The experiment takes around 5 minutes to complte.</p>
       <p>Click “Next” to learn more about the situation.</p>
@@ -12,11 +12,11 @@
 
     <InstructionScreen :title="'Situation'">
       <p>
-        You have a friend Alice, who likes share with you her feedback on
+        You have a friend Alice, who likes share with you her ratings on
         different experiences. You will be shown her ratings on a series of
         items or events.
       </p>
-      <p>Your task is to provide your intuitive judgment on these feedbacks.</p>
+      <p>Your task is to provide your intuitive judgment on these ratings.</p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -29,15 +29,15 @@
         <p>
           <strong>{{ trial.context }}</strong>
         </p>
-         <p>
-          arousal is <strong>{{ trial.arousal }}</strong>
-        </p>
+
         <p>
-          She gave a rating of <strong>{{ trial.stars }}</strong> stars.
+          She gave it a rating <strong>{{ trial.state }}</strong> out of 5
+          stars.
         </p>
+        <p>On a scale from 1 to 9,</p>
         <p>
-          On a scale from 1 to 9, rate how you think Alice would feel in her
-          emotions in the following two aspects:
+          rate how you think Alice would feel in her emotions in the following
+          two aspects:
         </p>
 
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
@@ -62,7 +62,7 @@
           :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
             $magpie.measurements.context = trial.context;
-            $magpie.measurements.stars = trial.stars;
+            $magpie.measurements.state = trial.state;
             $magpie.measurements.arousal = trial.arousal;
             $magpie.measurements.valence = trial.valence;
             $magpie.saveAndNextScreen();
@@ -73,9 +73,81 @@
       </Slide>
     </Screen>
 
+    <Screen>
+      <Slide>
+        <p>1. What is your age?</p>
+        <p>
+          <label>
+            <input v-model="demographic.age" type="number" max="110" min="18" />
+          </label>
+        </p>
+        <p>
+          <label
+            >2. What is your gender?
+            <DropdownInput
+              :options="['', 'female', 'male', 'other', 'prefer not to say']"
+              :response.sync="demographic.gender"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >3. On a scale from 1 to 7, how do you rate your English
+            proficiency?
+            <RatingInput
+              left="Complete Beginner"
+              right="Native Speaker"
+              :response.sync="demographic.proficiency"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >4. Where do you currently live?
+            <DropdownInput
+              :options="COUNTRIES"
+              :response.sync="demographic.country"
+            />
+          </label>
+        </p>
+
+        <p>""""debug use only"""" age = {{ demographic.age }}</p>
+        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
+        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
+        <p>""""debug use only"""" country = {{ demographic.country }}</p>
+
+        <button
+          :disabled="
+            demographic.country === null ||
+            demographic.country === 'Select country' ||
+            demographic.age < 18 ||
+            demographic.gender === null ||
+            demographic.proficiency === null
+          "
+          style="margin-top: 18px"
+          @click="
+            $magpie.addExpData({
+              age: demographic.age,
+              gender: demographic.gender,
+              proficiency: demographic.proficiency,
+              country: demographic.country
+            });
+            $magpie.saveAndNextScreen();
+          "
+        >
+          Next
+        </button>
+      </Slide>
+    </Screen>
+
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <PostTestScreen>
+    <PostTestScreen
+      :age="false"
+      :education="false"
+      :gender="false"
+      :languages="false"
+    >
       <!-- <template #default="{ measurements }">
 
     <p>Which best describes you?</p>
@@ -97,6 +169,7 @@
 
 <script>
 import _ from 'lodash';
+import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
   'Alice attended a concert. ',
@@ -108,20 +181,24 @@ const CONTEXTS = [
   'Alice attened a party.'
 ];
 
-const STARS = [1, 2, 3, 4, 5];
+const STATES = [1, 2, 3, 4, 5];
 
 const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
 
 export default {
   name: 'AppExperiment1',
   data() {
-    return { trials: this.makeTrials(10) };
+    return {
+      trials: this.makeTrials(2),
+      COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
+      demographic: { age: null, gender: null, proficiency: null, country: null }
+    };
   },
   methods: {
     makeTrials(n) {
       return _.times(n, () => ({
         context: _.sample(CONTEXTS),
-        stars: _.sample(STARS),
+        state: _.sample(STATES),
         adj: _.sample(ADJECTIVES),
         arousal: 0,
         valence: 0
