@@ -1,3 +1,5 @@
+<!-- experiment 1a: literal semantics -->
+
 <template>
   <Experiment title="rsa emoji experiment">
     <InstructionScreen :title="'Welcome, nice to see you!'">
@@ -27,18 +29,23 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p>
-          <strong>{{ trial.context }}</strong>
+        <p id="trial-context">
+          <strong
+            >{{ trial.context }} She gave it a rating
+            <span id="trial-state"> {{ trial.state }} out of 5 stars. </span>
+          </strong>
         </p>
-        <p>
-          She gave it a rating <strong>{{ trial.state }}</strong> out of 5
-          stars.
-        </p>
-        <p>On a scale from 1 to 9,</p>
-        <p>
-          how applicable do you think the word
-          <strong>"{{ trial.adj }}"</strong> is to describe the rating?
-        </p>
+        <!-- <p id="trial-state">
+          
+        </p> -->
+        <span
+          >On a scale from 1 to 9, how applicable do you think the word
+          <strong id="trial-state">"{{ trial.adj }}"</strong> is to describe the
+          rating?</span
+        >
+        <!-- <p>
+          
+        </p> -->
 
         <p>DEBUG applicability: {{ trial.applicability }}</p>
 
@@ -198,3 +205,17 @@ export default {
   }
 };
 </script>
+
+<style>
+/* p {
+  font-weight: bold;
+} */
+
+#trial-context {
+  font-size: 20px;
+}
+
+#trial-state {
+  color: #db153b;
+}
+</style>

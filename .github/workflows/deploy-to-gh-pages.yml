@@ -13,9 +13,9 @@ jobs:
       max-parallel: 1
       matrix:
         folder:
-          - experiments/exp1a-litSemantics/
-          - experiments/exp1b-PriorES/
-          - experiments/exp2-emoSemantics/
+          - experiments/exp1a/
+          - experiments/exp1b/
+          - experiments/exp2/
 
     runs-on: ubuntu-latest
     steps:

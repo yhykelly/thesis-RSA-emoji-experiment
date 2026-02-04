@@ -1,3 +1,5 @@
+<!-- experiment 1b: prior emotion given state -->
+
 <template>
   <Experiment title="rsa emoji experiment">
     <InstructionScreen :title="'Welcome, nice to see you!'">
@@ -26,27 +28,14 @@
              using the built-in SliderScreen component -->
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p>
-          <strong>{{ trial.context }}</strong>
-        </p>
-        <p>
-          arousal is <strong>{{ trial.arousal }}</strong>
-        </p>
-        <p>
-          She gave a rating of <strong>{{ trial.stars }}</strong> stars.
+        <p id="trial-context">
+          <strong>{{ trial.context }}</strong> She gave a rating
+          <strong id="trial-state"> {{ trial.stars }} out of 5 stars. </strong>
         </p>
         <p>
           On a scale from 1 to 9, rate how you think Alice would feel in her
           emotions in the following two aspects:
         </p>
-
-        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="Alice felt very calm/relaxed"
-          right="Alice felt very aroused/excited"
-          :response.sync="trial.arousal"
-        />
 
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
@@ -55,6 +44,23 @@
           right="Alice felt very happy"
           :response.sync="trial.valence"
         />
+
+        <p>
+          On a scale from 1 to 9, rate how intense you think Alice's emotion
+          was:
+        </p>
+
+        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
+        <RatingInput
+          :count="9"
+          left="The emotion was not intense at all"
+          right="The emotion was very intense"
+          :response.sync="trial.arousal"
+        />
+
+        <p>
+          """DEBUG""" arousal is <strong>{{ trial.arousal }}</strong>
+        </p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
@@ -73,9 +79,81 @@
       </Slide>
     </Screen>
 
+    <Screen>
+      <Slide>
+        <p>1. What is your age?</p>
+        <p>
+          <label>
+            <input v-model="demographic.age" type="number" max="110" min="18" />
+          </label>
+        </p>
+        <p>
+          <label
+            >2. What is your gender?
+            <DropdownInput
+              :options="['', 'female', 'male', 'other', 'prefer not to say']"
+              :response.sync="demographic.gender"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >3. On a scale from 1 to 7, how do you rate your English
+            proficiency?
+            <RatingInput
+              left="Complete Beginner"
+              right="Native Speaker"
+              :response.sync="demographic.proficiency"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >4. Where do you currently live?
+            <DropdownInput
+              :options="COUNTRIES"
+              :response.sync="demographic.country"
+            />
+          </label>
+        </p>
+
+        <p>""""debug use only"""" age = {{ demographic.age }}</p>
+        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
+        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
+        <p>""""debug use only"""" country = {{ demographic.country }}</p>
+
+        <button
+          :disabled="
+            demographic.country === null ||
+            demographic.country === 'Select country' ||
+            demographic.age < 18 ||
+            demographic.gender === null ||
+            demographic.proficiency === null
+          "
+          style="margin-top: 18px"
+          @click="
+            $magpie.addExpData({
+              age: demographic.age,
+              gender: demographic.gender,
+              proficiency: demographic.proficiency,
+              country: demographic.country
+            });
+            $magpie.saveAndNextScreen();
+          "
+        >
+          Next
+        </button>
+      </Slide>
+    </Screen>
+
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <PostTestScreen>
+    <PostTestScreen
+      :age="false"
+      :education="false"
+      :gender="false"
+      :languages="false"
+    >
       <!-- <template #default="{ measurements }">
 
     <p>Which best describes you?</p>
@@ -97,6 +175,7 @@
 
 <script>
 import _ from 'lodash';
+import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
   'Alice attended a concert. ',
@@ -116,7 +195,8 @@ export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(10),
+      trials: this.makeTrials(2),
+      COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
@@ -133,3 +213,13 @@ export default {
   }
 };
 </script>
+
+<style>
+#trial-context {
+  font-size: 20px;
+}
+
+#trial-state {
+  color: #db153b;
+}
+</style>

@@ -1,22 +1,30 @@
 <template>
   <Experiment title="rsa emoji experiment">
-    <InstructionScreen :title="'Welcome, nice to see you!'">
+    <InstructionScreen :title="'Welcome!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating a scale to understand how people
-        emotionally react to ratings.
+        In this study, we are calibrating a scale for emojis to understand how
+        people perceive the emotions expressed by emojis.
       </p>
-      <p>The experiment takes around 5 minutes to complte.</p>
-      <p>Click “Next” to learn more about the situation.</p>
+      <p>The experiment takes around 5 minutes to complete.</p>
+      <p>Click “Next” to learn more about the instruction.</p>
     </InstructionScreen>
 
-    <InstructionScreen :title="'Situation'">
+    <InstructionScreen :title="'Instruction'">
       <p>
-        You have a friend Alice, who likes share with you her ratings on
-        different experiences. You will be shown her ratings on a series of
-        items or events.
+        In the following section, you will see a series of emojis from Apple iOS
+        system.
       </p>
-      <p>Your task is to provide your intuitive judgment on these ratings.</p>
+      <p>
+        We are interested in the feelings you associate with each emoji,
+        therefore, please report your
+        <strong> direct perception of the emoji </strong> itself.
+      </p>
+      <p>
+        Do not worry about whether you use the emojis in your daily life or how
+        they might be used in different subcultures — We are interested in your
+        intuitive interpretation of face shown.
+      </p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -24,45 +32,47 @@
 
     <!-- and display a screen with a slider rating task
              using the built-in SliderScreen component -->
+
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
+        <p>A person sent the following emoji to you:</p>
+        <img :src="`img/${trial.emoji}.png`" style="width: 100px" />
         <p>
-          <strong>{{ trial.context }}</strong>
+          You know nothing about the context, but that they wanted to express
+          their emotions with this emoji.
         </p>
-
         <p>
-          She gave it a rating <strong>{{ trial.state }}</strong> out of 5
-          stars.
+          On a scale from 1 to 9, rate how you think the person would feel in
+          his/her emotion:
         </p>
-        <p>On a scale from 1 to 9,</p>
-        <p>
-          rate how you think Alice would feel in her emotions in the following
-          two aspects:
-        </p>
-
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
-          left="Alice felt very calm/relaxed"
-          right="Alice felt very aroused/excited"
+          left="The person felt very calm/relaxed"
+          right="The person felt very aroused/excited"
           :response.sync="trial.arousal"
         />
-
+        <p>
+          On a scale from 1 to 9, rate how intense you think the person's
+          emotion was:
+        </p>
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          left="Alice felt very unhappy"
-          right="Alice felt very happy"
+          left="The person felt very unhappy"
+          right="The peson felt very happy"
           :response.sync="trial.valence"
         />
+
+        <p>""""debug use only"""" {{ trial.arousal }}</p>
+        <p>""""debug use only"""" {{ trial.valence }}</p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
           style="margin-top: 18px"
           :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
-            $magpie.measurements.context = trial.context;
-            $magpie.measurements.state = trial.state;
+            $magpie.measurements.emoji = trial.emoji;
             $magpie.measurements.arousal = trial.arousal;
             $magpie.measurements.valence = trial.valence;
             $magpie.saveAndNextScreen();
@@ -139,7 +149,6 @@
         </button>
       </Slide>
     </Screen>
-
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
     <PostTestScreen
@@ -148,21 +157,13 @@
       :gender="false"
       :languages="false"
     >
-      <!-- <template #default="{ measurements }">
-
-    <p>Which best describes you?</p>
-    <select v-model="measurements.gender">
-      <option value="">Prefer not to say</option>
-      <option value="male">Man</option>
-      <option value="female">Woman</option>
-      <option value="other">Another identity</option>
-    </select>
-  </template> -->
     </PostTestScreen>
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
-       this screen will show the results of the current experiment directly. Once you switch to directLink or prolific
+       this screen will show the results of the current experiment directly. 
+       Once you switch to directLink or prolific
        this screen will submit the results to your magpie backend -->
+    <DebugResultsScreen />
     <SubmitResultsScreen />
   </Experiment>
 </template>
@@ -171,35 +172,34 @@
 import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
-const CONTEXTS = [
-  'Alice attended a concert. ',
-  'Alice tried a pizza.',
-  'Alice watched a movie.',
-  'Alice tried a cookie.',
-  'Alice reviewed a restaurant meal.',
-  'Alice tried a coffee.',
-  'Alice attened a party.'
+const EMOJIS = [
+  'angry',
+  'grinning',
+  'kissing'
+  // 'laughing',
+  // 'neutral_face',
+  // 'pensive',
+  // 'relaxed',
+  // 'slightly_frowning_face',
+  // 'slightly_smiling_face',
+  // 'smile',
+  // 'weary',
+  // 'white_frowning_face'
 ];
-
-const STATES = [1, 2, 3, 4, 5];
-
-const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
 
 export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(2),
+      trials: this.makeTrials(),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
   methods: {
-    makeTrials(n) {
-      return _.times(n, () => ({
-        context: _.sample(CONTEXTS),
-        state: _.sample(STATES),
-        adj: _.sample(ADJECTIVES),
+    makeTrials() {
+      return _.shuffle(EMOJIS).map((e) => ({
+        emoji: e,
         arousal: 0,
         valence: 0
       }));

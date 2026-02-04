@@ -1,3 +1,5 @@
+<!-- experiment 2: emoji semantics -->
+
 <template>
   <Experiment title="rsa emoji experiment">
     <InstructionScreen :title="'Welcome!'">
@@ -41,14 +43,10 @@
           You know nothing about the context, but that they wanted to express
           their emotions with this emoji.
         </p>
-        <p>Based on the emoji alone, on a scale from 1 to 9,</p>
         <p>
-          rate how you think the person felt in the following two aspects:
-          <!-- <strong>{{ trial.emoji }}</strong> -->
+          On a scale from 1 to 9, rate how you think the person would feel in
+          his/her emotion:
         </p>
-
-        <p>""""debug use only"""" {{ trial.arousal }}</p>
-        <p>""""debug use only"""" {{ trial.valence }}</p>
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
@@ -56,7 +54,10 @@
           right="The person felt very aroused/excited"
           :response.sync="trial.arousal"
         />
-
+        <p>
+          On a scale from 1 to 9, rate how intense you think the person's
+          emotion was:
+        </p>
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
@@ -64,6 +65,9 @@
           right="The peson felt very happy"
           :response.sync="trial.valence"
         />
+
+        <p>""""debug use only"""" {{ trial.arousal }}</p>
+        <p>""""debug use only"""" {{ trial.valence }}</p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
