@@ -5,8 +5,8 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating a scale for feedback words to
-        understand how people use different adjectives to describe ratings.
+        In this study, we are calibrating an emotional scale to understand how
+        people react to different ratings.
       </p>
       <p>The experiment takes around 5 minutes to complte.</p>
       <p>Click “Next” to learn more about the situation.</p>
@@ -14,11 +14,10 @@
 
     <InstructionScreen :title="'Situation'">
       <p>
-        You have a friend Alice, who likes share with you her feedback on
-        different experiences. You will be shown her ratings on a series of
-        items or events.
+        In the following trials, you will see a series of ratings on different
+        experiences. Your task is to provide your intuitive judgment on these
+        feedbacks.
       </p>
-      <p>Your task is to provide your intuitive judgment on these feedbacks.</p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -29,26 +28,24 @@
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
         <p id="trial-context">
-          <strong>{{ trial.context }}</strong> She gave a rating
+          <strong>{{ trial.person }} {{ trial.context.action }} </strong>
+          {{ trial.person }} gave a it rating
           <strong id="trial-state"> {{ trial.stars }} out of 5 stars. </strong>
         </p>
+        <p></p>
         <p>
-          On a scale from 1 to 9, rate how you think Alice would feel in her
-          emotions in the following two aspects:
+          On a scale from 1 to 9, how unhappy or happy do you think
+          {{ trial.person }} felt about the {{ trial.context.item }},
         </p>
+        <p>and how intense to you think that emotion was?</p>
 
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          left="Alice felt very unhappy"
-          right="Alice felt very happy"
+          :left="`${trial.person} felt very unhappy`"
+          :right="`${trial.person} felt very happy`"
           :response.sync="trial.valence"
         />
-
-        <p>
-          On a scale from 1 to 9, rate how intense you think Alice's emotion
-          was:
-        </p>
 
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
@@ -67,7 +64,7 @@
           style="margin-top: 18px"
           :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
-            $magpie.measurements.context = trial.context;
+            $magpie.measurements.context = trial.context.item;
             $magpie.measurements.stars = trial.stars;
             $magpie.measurements.arousal = trial.arousal;
             $magpie.measurements.valence = trial.valence;
@@ -178,18 +175,20 @@ import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
-  'Alice attended a concert. ',
-  'Alice tried a pizza.',
-  'Alice watched a movie.',
-  'Alice tried a cookie.',
-  'Alice reviewed a restaurant meal.',
-  'Alice tried a coffee.',
-  'Alice attened a party.'
+  { action: 'attended a concert.', item: 'concert' },
+  { action: 'tried a pizza.', item: 'pizza' },
+  { action: 'watched a movie.', item: 'movie' },
+  { action: 'tried a cookie.', item: 'cookie' },
+  { action: 'reviewed a restaurant meal.', item: 'restaurant meal' },
+  { action: 'tried a coffee.', item: 'coffee' },
+  { action: 'attened a party.', item: 'party' }
 ];
 
 const STARS = [1, 2, 3, 4, 5];
 
 const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
+
+const PERSONS = ['Alice', 'Bob', 'Chris', 'Dani'];
 
 export default {
   name: 'AppExperiment1',
@@ -203,6 +202,7 @@ export default {
   methods: {
     makeTrials(n) {
       return _.times(n, () => ({
+        person: _.sample(PERSONS),
         context: _.sample(CONTEXTS),
         stars: _.sample(STARS),
         adj: _.sample(ADJECTIVES),
@@ -219,7 +219,7 @@ export default {
   font-size: 20px;
 }
 
-#trial-state {
+/* #trial-state {
   color: #db153b;
-}
+} */
 </style>

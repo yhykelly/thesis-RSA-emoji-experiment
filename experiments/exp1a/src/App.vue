@@ -14,9 +14,8 @@
 
     <InstructionScreen :title="'Situation'">
       <p>
-        You have a friend Alice, who likes share with you her feedback on
-        different experiences. You will be shown her ratings on a series of
-        items or events.
+        In the following trials, you will see a series of feedback on different
+        experiences.
       </p>
       <p>Your task is to provide your intuitive judgment on these feedbacks.</p>
       <p>Click “Next” to begin.</p>
@@ -30,19 +29,24 @@
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
         <p id="trial-context">
-          <strong
-            >{{ trial.context }} She gave it a rating
-            <span id="trial-state"> {{ trial.state }} out of 5 stars. </span>
-          </strong>
+          <strong>{{ trial.person }} {{ trial.context.action }} </strong>
         </p>
         <!-- <p id="trial-state">
           
         </p> -->
-        <span
-          >On a scale from 1 to 9, how applicable do you think the word
-          <strong id="trial-state">"{{ trial.adj }}"</strong> is to describe the
-          rating?</span
-        >
+        <p>
+          Given that {{ trial.person }} rated the {{ trial.context.item }} with
+          <strong> {{ trial.state }} out of 5 stars</strong>,
+        </p>
+        <p>
+          how applicable is the description
+          <span id="trial-sentence">
+            "{{ trial.person }} thinks that the {{ trial.context.item }} was
+            <strong id="trial-state">{{ trial.adj }}</strong
+            >" ?
+          </span>
+        </p>
+
         <!-- <p>
           
         </p> -->
@@ -60,7 +64,7 @@
           :disabled="trial.applicability == null || trial.applicability === 0"
           style="margin-top: 18px"
           @click="
-            $magpie.measurements.context = trial.context;
+            $magpie.measurements.context = trial.context.item;
             $magpie.measurements.state = trial.state;
             $magpie.measurements.adj = trial.adj;
             $magpie.measurements.applicability = trial.applicability;
@@ -171,18 +175,20 @@ import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
-  'Alice attended a concert. ',
-  'Alice tried a pizza.',
-  'Alice watched a movie.',
-  'Alice tried a cookie.',
-  'Alice reviewed a restaurant meal.',
-  'Alice tried a coffee.',
-  'Alice attened a party.'
+  { action: 'attended a concert.', item: 'concert' },
+  { action: 'tried a pizza.', item: 'pizza' },
+  { action: 'watched a movie.', item: 'movie' },
+  { action: 'tried a cookie.', item: 'cookie' },
+  { action: 'reviewed a restaurant meal.', item: 'restaurant meal' },
+  { action: 'tried a coffee.', item: 'coffee' },
+  { action: 'attened a party.', item: 'party' }
 ];
 
 const STATES = [1, 2, 3, 4, 5];
 
 const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
+
+const PERSONS = ['Alice', 'Bob', 'Chris', 'Dani'];
 
 export default {
   name: 'AppExperiment1',
@@ -196,6 +202,7 @@ export default {
   methods: {
     makeTrials(n) {
       return _.times(n, () => ({
+        person: _.sample(PERSONS),
         context: _.sample(CONTEXTS),
         state: _.sample(STATES),
         adj: _.sample(ADJECTIVES),
@@ -215,7 +222,7 @@ export default {
   font-size: 20px;
 }
 
-#trial-state {
-  color: #db153b;
+#trial-sentence {
+  font-style: italic;
 }
 </style>

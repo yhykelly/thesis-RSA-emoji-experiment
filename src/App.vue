@@ -1,3 +1,5 @@
+<!-- experiment 2: emoji semantics -->
+
 <template>
   <Experiment title="rsa emoji experiment">
     <InstructionScreen :title="'Welcome!'">
@@ -11,20 +13,13 @@
     </InstructionScreen>
 
     <InstructionScreen :title="'Instruction'">
+      <p>In the following section, you will see a series of common emojis.</p>
       <p>
-        In the following section, you will see a series of emojis from Apple iOS
-        system.
+        We are interested in the emotions you associate with each emoji,
+        therefore, please do not worry about whether you use the emojis in your
+        daily life, or how they might be used in different subcultures.
       </p>
-      <p>
-        We are interested in the feelings you associate with each emoji,
-        therefore, please report your
-        <strong> direct perception of the emoji </strong> itself.
-      </p>
-      <p>
-        Do not worry about whether you use the emojis in your daily life or how
-        they might be used in different subcultures — We are interested in your
-        intuitive interpretation of face shown.
-      </p>
+      <p>Please report your intuitive interpretation of emoji face shown.</p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -35,37 +30,38 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p>A person sent the following emoji to you:</p>
-        <img :src="`img/${trial.emoji}.png`" style="width: 100px" />
+        <p>A person sent the following emoji to you.</p>
         <p>
           You know nothing about the context, but that they wanted to express
-          their emotions with this emoji.
+          their emotions with this emoji:
         </p>
+        <img :src="`img/${trial.emoji}.png`" style="width: 100px" />
+        <p></p>
         <p>
-          On a scale from 1 to 9, rate how you think the person would feel in
-          his/her emotion:
-        </p>
-        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="The person felt very calm/relaxed"
-          right="The person felt very aroused/excited"
-          :response.sync="trial.arousal"
-        />
-        <p>
-          On a scale from 1 to 9, rate how intense you think the person's
-          emotion was:
+          To what extent do you think this person felt positive/pleasant or
+          negative/unpleasant?
         </p>
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          left="The person felt very unhappy"
-          right="The peson felt very happy"
+          left="The person felt very negative/unpleasant"
+          right="The peson felt very positive/pleasant"
           :response.sync="trial.valence"
         />
+        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
+        <p>
+          To what extent do you consider this emotion was arousing/exciting or
+          passive/calm?
+        </p>
+        <RatingInput
+          :count="9"
+          left="The emotion was very passive/calm"
+          right="The emotion was very arousing/exciting"
+          :response.sync="trial.arousal"
+        />
 
-        <p>""""debug use only"""" {{ trial.arousal }}</p>
-        <p>""""debug use only"""" {{ trial.valence }}</p>
+        <p id="debugging">""""debug use only"""" {{ trial.arousal }}</p>
+        <p id="debugging">""""debug use only"""" {{ trial.valence }}</p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
@@ -121,10 +117,16 @@
           </label>
         </p>
 
-        <p>""""debug use only"""" age = {{ demographic.age }}</p>
-        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
-        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
-        <p>""""debug use only"""" country = {{ demographic.country }}</p>
+        <p id="debugging">""""debug use only"""" age = {{ demographic.age }}</p>
+        <p id="debugging">
+          """"debug use only"""" gender = {{ demographic.gender }}
+        </p>
+        <p id="debugging">
+          """"debug use only"""" prof = {{ demographic.proficiency }}
+        </p>
+        <p id="debugging">
+          """"debug use only"""" country = {{ demographic.country }}
+        </p>
 
         <button
           :disabled="
@@ -207,3 +209,9 @@ export default {
   }
 };
 </script>
+
+<style>
+#debugging {
+  font-size: 10px;
+}
+</style>
