@@ -5,19 +5,23 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating a scale for feedback words to
-        understand how people use different adjectives to describe ratings.
+        In this experiment, you will be asked to judge how well short
+        descriptions apply to ratings of everyday experiences.
       </p>
-      <p>The experiment takes around 5 minutes to complte.</p>
-      <p>Click “Next” to learn more about the situation.</p>
+      <p>The experiment takes around 5 minutes to complete.</p>
+      <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
-    <InstructionScreen :title="'Situation'">
+    <InstructionScreen :title="'Instruction'">
       <p>
-        In the following trials, you will see a series of feedback on different
-        experiences.
+        On each trial, you will see a short description of a situation in which
+        a person rated an experience.
       </p>
-      <p>Your task is to provide your intuitive judgment on these feedbacks.</p>
+      <p>You will then see a sentence describing the experience.</p>
+      <p>
+        Your task is to judge how applicable this description is given the
+        rating.
+      </p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -28,30 +32,25 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p id="trial-context">
-          <strong>{{ trial.person }} {{ trial.context.action }} </strong>
-        </p>
-        <!-- <p id="trial-state">
-          
-        </p> -->
-        <p>
-          Given that {{ trial.person }} rated the {{ trial.context.item }} with
-          <strong> {{ trial.state }} out of 5 stars</strong>,
-        </p>
-        <p>
-          how applicable is the description
-          <span id="trial-sentence">
-            "{{ trial.person }} thinks that the {{ trial.context.item }} was
-            <strong id="trial-state">{{ trial.adj }}</strong
-            >" ?
-          </span>
+        <p id="given">
+          {{ trial.person }} {{ trial.context.action }} and rated it
+          <strong> {{ trial.state }} out of 5 stars</strong>
         </p>
 
-        <!-- <p>
-          
-        </p> -->
+        <p id="given">How applicable is the description?</p>
 
-        <p>DEBUG applicability: {{ trial.applicability }}</p>
+        <p v-if="trial.isTrial" id="trial-sentence">
+          "{{ trial.person }} thought that the {{ trial.context.item }} was
+          <strong id="trial-state">{{ trial.adj }}.</strong>"
+        </p>
+
+        <p v-else id="trial-sentence">
+          "{{ trial.person }} thought that the {{ trial.context.item }} was
+          <strong id="trial-state">{{ trial.adj }}.</strong>
+          For this trial, please select {{ trial.trialState }} on the scale."
+        </p>
+
+        <p id="debugging">DEBUG applicability: {{ trial.applicability }}</p>
 
         <RatingInput
           :count="9"
@@ -68,6 +67,10 @@
             $magpie.measurements.state = trial.state;
             $magpie.measurements.adj = trial.adj;
             $magpie.measurements.applicability = trial.applicability;
+            $magpie.measurements.isTrial = trial.isTrial;
+            $magpie.measurements.trialState = trial.trialState;
+            $magpie.measurements.isPassedAttention =
+              trial.isTrial || trial.trialState === trial.state;
             $magpie.saveAndNextScreen();
           "
         >
@@ -114,10 +117,16 @@
           </label>
         </p>
 
-        <p>""""debug use only"""" age = {{ demographic.age }}</p>
-        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
-        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
-        <p>""""debug use only"""" country = {{ demographic.country }}</p>
+        <p id="debugging">""""debug use only"""" age = {{ demographic.age }}</p>
+        <p id="debugging">
+          """"debug use only"""" gender = {{ demographic.gender }}
+        </p>
+        <p id="debugging">
+          """"debug use only"""" prof = {{ demographic.proficiency }}
+        </p>
+        <p id="debugging">
+          """"debug use only"""" country = {{ demographic.country }}
+        </p>
 
         <button
           :disabled="
@@ -175,13 +184,13 @@ import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
-  { action: 'attended a concert.', item: 'concert' },
-  { action: 'tried a pizza.', item: 'pizza' },
-  { action: 'watched a movie.', item: 'movie' },
-  { action: 'tried a cookie.', item: 'cookie' },
-  { action: 'reviewed a restaurant meal.', item: 'restaurant meal' },
-  { action: 'tried a coffee.', item: 'coffee' },
-  { action: 'attened a party.', item: 'party' }
+  { action: 'attended a concert', item: 'concert' },
+  { action: 'tried a pizza', item: 'pizza' },
+  { action: 'watched a movie', item: 'movie' },
+  { action: 'tried a cookie', item: 'cookie' },
+  { action: 'reviewed a restaurant meal', item: 'restaurant meal' },
+  { action: 'tried a coffee', item: 'coffee' },
+  { action: 'attened a party', item: 'party' }
 ];
 
 const STATES = [1, 2, 3, 4, 5];
@@ -194,20 +203,43 @@ export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(2),
+      trials: this.makeTrials(6),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
+
   methods: {
     makeTrials(n) {
-      return _.times(n, () => ({
-        person: _.sample(PERSONS),
-        context: _.sample(CONTEXTS),
-        state: _.sample(STATES),
-        adj: _.sample(ADJECTIVES),
-        applicability: 0
-      }));
+      const attentionPositions = [Math.floor(n / 3), Math.floor((2 * n) / 3)];
+
+      const trials = [];
+
+      for (let i = 0; i < n; i++) {
+        if (attentionPositions.includes(i)) {
+          trials.push({
+            isTrial: false,
+            trialState: _.sample(STATES),
+            person: _.sample(PERSONS),
+            context: _.sample(CONTEXTS),
+            state: _.sample(STATES),
+            adj: _.sample(ADJECTIVES),
+            applicability: 0
+          });
+        }
+
+        trials.push({
+          isTrial: true,
+          trialState: 0,
+          person: _.sample(PERSONS),
+          context: _.sample(CONTEXTS),
+          state: _.sample(STATES),
+          adj: _.sample(ADJECTIVES),
+          applicability: 0
+        });
+      }
+
+      return trials;
     }
   }
 };
@@ -224,5 +256,14 @@ export default {
 
 #trial-sentence {
   font-style: italic;
+  /* font-size: 20px; */
 }
+
+#debugging {
+  font-size: 10px;
+}
+
+/* #given {
+  font-size: 16px;
+} */
 </style>
