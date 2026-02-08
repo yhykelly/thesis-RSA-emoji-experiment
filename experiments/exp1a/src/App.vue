@@ -98,8 +98,7 @@
         </p>
         <p>
           <label
-            >3. On a scale from 1 to 7, how do you rate your English
-            proficiency?
+            >3. How do you rate your English proficiency?
             <RatingInput
               left="Complete Beginner"
               right="Native Speaker"
@@ -109,23 +108,31 @@
         </p>
         <p>
           <label
-            >4. Where do you currently live?
+            >4. How frequently do you use or encounter emojis in your daily
+            life?
+            <RatingInput
+              left="Never"
+              right="Almost constantly"
+              :response.sync="demographic.emojiUsage"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >5. Where do you currently live?
             <DropdownInput
               :options="COUNTRIES"
               :response.sync="demographic.country"
             />
           </label>
         </p>
+        <p>Further comments (optional)</p>
+        <TextareaInput :response.sync="demographic.comments" />
 
-        <p id="debugging">""""debug use only"""" age = {{ demographic.age }}</p>
         <p id="debugging">
-          """"debug use only"""" gender = {{ demographic.gender }}
-        </p>
-        <p id="debugging">
-          """"debug use only"""" prof = {{ demographic.proficiency }}
-        </p>
-        <p id="debugging">
-          """"debug use only"""" country = {{ demographic.country }}
+          """"debug use only"""" age = {{ demographic.age }} gender =
+          {{ demographic.gender }} prof = {{ demographic.proficiency }} country
+          = {{ demographic.country }}
         </p>
 
         <button
@@ -134,7 +141,8 @@
             demographic.country === 'Select country' ||
             demographic.age < 18 ||
             demographic.gender === null ||
-            demographic.proficiency === null
+            demographic.proficiency === null ||
+            demographic.emojiUsage === null
           "
           style="margin-top: 18px"
           @click="
@@ -142,25 +150,27 @@
               age: demographic.age,
               gender: demographic.gender,
               proficiency: demographic.proficiency,
-              country: demographic.country
+              country: demographic.country,
+              emojiUsage: demographic.emojiUsage,
+              comments: demographic.comments
             });
             $magpie.saveAndNextScreen();
           "
         >
-          Next
+          Submit results
         </button>
       </Slide>
     </Screen>
 
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <PostTestScreen
+    <!-- <PostTestScreen
       :age="false"
       :education="false"
       :gender="false"
       :languages="false"
-    >
-      <!-- <template #default="{ measurements }">
+    > -->
+    <!-- <template #default="{ measurements }">
 
     <p>Which best describes you?</p>
     <select v-model="measurements.gender">
@@ -170,7 +180,7 @@
       <option value="other">Another identity</option>
     </select>
   </template> -->
-    </PostTestScreen>
+    <!-- </PostTestScreen> -->
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
        this screen will show the results of the current experiment directly. Once you switch to directLink or prolific
@@ -190,7 +200,7 @@ const CONTEXTS = [
   { action: 'tried a cookie', item: 'cookie' },
   { action: 'reviewed a restaurant meal', item: 'restaurant meal' },
   { action: 'tried a coffee', item: 'coffee' },
-  { action: 'attened a party', item: 'party' }
+  { action: 'attended a party', item: 'party' }
 ];
 
 const STATES = [1, 2, 3, 4, 5];

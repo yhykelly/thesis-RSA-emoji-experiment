@@ -4,7 +4,8 @@ link to experiments (currently only frontend implemented):
 2. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/
 3. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp2/
 
-This is a sample experiment using magpie.
+[Procedures for the experiments](exp-procedures.md)
+
 ### Setup
 
 First, set up the project with `npm install`

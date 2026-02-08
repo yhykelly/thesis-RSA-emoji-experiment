@@ -1,25 +1,23 @@
-<!-- experiment 2: emoji semantics -->
+<!-- experiment 1a: literal semantics -->
 
 <template>
   <Experiment title="rsa emoji experiment">
-    <InstructionScreen :title="'Welcome!'">
+    <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating a scale for emojis to understand how
-        people perceive the emotions expressed by emojis.
+        In this study, we are calibrating a scale for feedback words to
+        understand how people use different adjectives to describe ratings.
       </p>
-      <p>The experiment takes around 5 minutes to complete.</p>
-      <p>Click “Next” to learn more about the instruction.</p>
+      <p>The experiment takes around 5 minutes to complte.</p>
+      <p>Click “Next” to learn more about the situation.</p>
     </InstructionScreen>
 
-    <InstructionScreen :title="'Instruction'">
-      <p>In the following section, you will see a series of common emojis.</p>
+    <InstructionScreen :title="'Situation'">
       <p>
-        We are interested in the emotions you associate with each emoji,
-        therefore, please do not worry about whether you use the emojis in your
-        daily life, or how they might be used in different subcultures.
+        In the following trials, you will see a series of feedback on different
+        experiences.
       </p>
-      <p>Please report your intuitive interpretation of emoji face shown.</p>
+      <p>Your task is to provide your intuitive judgment on these feedbacks.</p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -30,47 +28,46 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p>A person sent the following emoji to you.</p>
-        <p>
-          You know nothing about the context, but that they wanted to express
-          their emotions with this emoji:
+        <p id="trial-context">
+          <strong>{{ trial.person }} {{ trial.context.action }} </strong>
         </p>
-        <img :src="`img/${trial.emoji}.png`" style="width: 100px" />
-        <p></p>
+        <!-- <p id="trial-state">
+          
+        </p> -->
         <p>
-          To what extent do you think this person felt positive/pleasant or
-          negative/unpleasant?
+          Given that {{ trial.person }} rated the {{ trial.context.item }} with
+          <strong> {{ trial.state }} out of 5 stars</strong>,
         </p>
-        <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="The person felt very negative/unpleasant"
-          right="The peson felt very positive/pleasant"
-          :response.sync="trial.valence"
-        />
-        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <p>
-          To what extent do you consider this emotion was arousing/exciting or
-          passive/calm?
+          how applicable is the description
+          <span id="trial-sentence">
+            "{{ trial.person }} thinks that the {{ trial.context.item }} was
+            <strong id="trial-state">{{ trial.adj }}</strong
+            >" ?
+          </span>
         </p>
-        <RatingInput
-          :count="9"
-          left="The emotion was very passive/calm"
-          right="The emotion was very arousing/exciting"
-          :response.sync="trial.arousal"
-        />
 
-        <p id="debugging">""""debug use only"""" {{ trial.arousal }}</p>
-        <p id="debugging">""""debug use only"""" {{ trial.valence }}</p>
+        <!-- <p>
+          
+        </p> -->
+
+        <p>DEBUG applicability: {{ trial.applicability }}</p>
+
+        <RatingInput
+          :count="9"
+          left="not applicable at all"
+          right="very applicable"
+          :response.sync="trial.applicability"
+        />
 
         <button
-          v-if="trial.arousal != 0 && trial.valence != 0"
+          :disabled="trial.applicability == null || trial.applicability === 0"
           style="margin-top: 18px"
-          :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
-            $magpie.measurements.emoji = trial.emoji;
-            $magpie.measurements.arousal = trial.arousal;
-            $magpie.measurements.valence = trial.valence;
+            $magpie.measurements.context = trial.context.item;
+            $magpie.measurements.state = trial.state;
+            $magpie.measurements.adj = trial.adj;
+            $magpie.measurements.applicability = trial.applicability;
             $magpie.saveAndNextScreen();
           "
         >
@@ -117,16 +114,10 @@
           </label>
         </p>
 
-        <p id="debugging">""""debug use only"""" age = {{ demographic.age }}</p>
-        <p id="debugging">
-          """"debug use only"""" gender = {{ demographic.gender }}
-        </p>
-        <p id="debugging">
-          """"debug use only"""" prof = {{ demographic.proficiency }}
-        </p>
-        <p id="debugging">
-          """"debug use only"""" country = {{ demographic.country }}
-        </p>
+        <p>""""debug use only"""" age = {{ demographic.age }}</p>
+        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
+        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
+        <p>""""debug use only"""" country = {{ demographic.country }}</p>
 
         <button
           :disabled="
@@ -151,6 +142,7 @@
         </button>
       </Slide>
     </Screen>
+
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
     <PostTestScreen
@@ -159,13 +151,21 @@
       :gender="false"
       :languages="false"
     >
+      <!-- <template #default="{ measurements }">
+
+    <p>Which best describes you?</p>
+    <select v-model="measurements.gender">
+      <option value="">Prefer not to say</option>
+      <option value="male">Man</option>
+      <option value="female">Woman</option>
+      <option value="other">Another identity</option>
+    </select>
+  </template> -->
     </PostTestScreen>
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
-       this screen will show the results of the current experiment directly. 
-       Once you switch to directLink or prolific
+       this screen will show the results of the current experiment directly. Once you switch to directLink or prolific
        this screen will submit the results to your magpie backend -->
-    <DebugResultsScreen />
     <SubmitResultsScreen />
   </Experiment>
 </template>
@@ -174,36 +174,39 @@
 import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
-const EMOJIS = [
-  'angry',
-  'grinning',
-  'kissing'
-  // 'laughing',
-  // 'neutral_face',
-  // 'pensive',
-  // 'relaxed',
-  // 'slightly_frowning_face',
-  // 'slightly_smiling_face',
-  // 'smile',
-  // 'weary',
-  // 'white_frowning_face'
+const CONTEXTS = [
+  { action: 'attended a concert.', item: 'concert' },
+  { action: 'tried a pizza.', item: 'pizza' },
+  { action: 'watched a movie.', item: 'movie' },
+  { action: 'tried a cookie.', item: 'cookie' },
+  { action: 'reviewed a restaurant meal.', item: 'restaurant meal' },
+  { action: 'tried a coffee.', item: 'coffee' },
+  { action: 'attened a party.', item: 'party' }
 ];
+
+const STATES = [1, 2, 3, 4, 5];
+
+const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
+
+const PERSONS = ['Alice', 'Bob', 'Chris', 'Dani'];
 
 export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(),
+      trials: this.makeTrials(2),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
   methods: {
-    makeTrials() {
-      return _.shuffle(EMOJIS).map((e) => ({
-        emoji: e,
-        arousal: 0,
-        valence: 0
+    makeTrials(n) {
+      return _.times(n, () => ({
+        person: _.sample(PERSONS),
+        context: _.sample(CONTEXTS),
+        state: _.sample(STATES),
+        adj: _.sample(ADJECTIVES),
+        applicability: 0
       }));
     }
   }
@@ -211,7 +214,15 @@ export default {
 </script>
 
 <style>
-#debugging {
-  font-size: 10px;
+/* p {
+  font-weight: bold;
+} */
+
+#trial-context {
+  font-size: 20px;
+}
+
+#trial-sentence {
+  font-style: italic;
 }
 </style>

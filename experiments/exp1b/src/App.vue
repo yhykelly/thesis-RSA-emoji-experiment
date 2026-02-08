@@ -5,20 +5,39 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this study, we are calibrating an emotional scale to understand how
-        people react to different ratings.
+        In this experiment, you will be asked to judge emotions based on ratings
+        of everyday experiences.
       </p>
-      <p>The experiment takes around 5 minutes to complte.</p>
-      <p>Click “Next” to learn more about the situation.</p>
+      <p>The experiment takes about 5 minutes to complete.</p>
+      <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
-    <InstructionScreen :title="'Situation'">
+    <InstructionScreen :title="'Instruction'">
       <p>
-        In the following trials, you will see a series of ratings on different
-        experiences. Your task is to provide your intuitive judgment on these
-        feedbacks.
+        On each trial, you will see a short description of a situation in which
+        a person rated an experience (for example, a movie or a meal).
       </p>
-      <p>Click “Next” to begin.</p>
+      <p>
+        Your task is to judge how the person felt about the experience based on
+        the rating they gave.
+      </p>
+      <p>
+        On each trial, you will rate the person’s emotion in terms of two
+        dimensions:
+      </p>
+      <ul>
+        <li>
+          <strong>Valence</strong>: how negative/unpleasant or positive/pleasant
+          the emotion was, and
+        </li>
+        <li>
+          <strong>Arousal</strong>: how calm/passive or intense/exciting the
+          emotion was.
+        </li>
+      </ul>
+
+      <p></p>
+      <p>Click “Next” to begin the task.</p>
     </InstructionScreen>
 
     <!-- We iterate over our experiment trials -->
@@ -28,34 +47,42 @@
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
         <p id="trial-context">
-          <strong>{{ trial.person }} {{ trial.context.action }} </strong>
-          {{ trial.person }} gave a it rating
-          <strong id="trial-state"> {{ trial.stars }} out of 5 stars. </strong>
+          <span v-if="trial.isTrial">
+            {{ trial.person }} {{ trial.context.action }} and rated it
+            <strong id="trial-state">
+              {{ trial.state }} out of 5 stars.
+            </strong>
+          </span>
+          <span v-else
+            >{{ trial.person }} {{ trial.context.action }}. For this trial, rate
+            <strong>{{ trial.trialValence }}</strong> for the first scale and
+            <strong>{{ trial.trialArousal }}</strong> for the second.
+          </span>
         </p>
-        <p></p>
+        <!-- <p></p>
+        <p>On a scale from 1 to 9,</p> -->
         <p>
-          On a scale from 1 to 9, how unhappy or happy do you think
-          {{ trial.person }} felt about the {{ trial.context.item }},
+          How negative or positive do you think {{ trial.person }} felt about
+          the {{ trial.context.item }}?
         </p>
-        <p>and how intense to you think that emotion was?</p>
 
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          :left="`${trial.person} felt very unhappy`"
-          :right="`${trial.person} felt very happy`"
+          :left="`${trial.person} felt very negative/unpleasant`"
+          :right="`${trial.person} felt very positive/pleasant`"
           :response.sync="trial.valence"
         />
-
+        <p>How calm or intense do you think that emotion was ?</p>
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
-          left="The emotion was not intense at all"
-          right="The emotion was very intense"
+          left="The emotion was very calm/passive"
+          right="The emotion was very intense/exciting"
           :response.sync="trial.arousal"
         />
 
-        <p>
+        <p id="debugging">
           """DEBUG""" arousal is <strong>{{ trial.arousal }}</strong>
         </p>
 
@@ -66,8 +93,13 @@
           @click="
             $magpie.measurements.context = trial.context.item;
             $magpie.measurements.stars = trial.stars;
-            $magpie.measurements.arousal = trial.arousal;
             $magpie.measurements.valence = trial.valence;
+            $magpie.measurements.arousal = trial.arousal;
+            $magpie.measurements.isTrial = trial.isTrial;
+            $magpie.measurements.isPassedAttention =
+              trial.isTrial ||
+              (trial.trialValence === trial.valence &&
+                trial.trialArousal === trial.arousal);
             $magpie.saveAndNextScreen();
           "
         >
@@ -95,8 +127,7 @@
         </p>
         <p>
           <label
-            >3. On a scale from 1 to 7, how do you rate your English
-            proficiency?
+            >3. How do you rate your English proficiency?
             <RatingInput
               left="Complete Beginner"
               right="Native Speaker"
@@ -106,18 +137,32 @@
         </p>
         <p>
           <label
-            >4. Where do you currently live?
+            >4. How frequently do you use or encounter emojis in your daily
+            life?
+            <RatingInput
+              left="Never"
+              right="Almost constantly"
+              :response.sync="demographic.emojiUsage"
+            />
+          </label>
+        </p>
+        <p>
+          <label
+            >5. Where do you currently live?
             <DropdownInput
               :options="COUNTRIES"
               :response.sync="demographic.country"
             />
           </label>
         </p>
+        <p>Further comments (optional)</p>
+        <TextareaInput :response.sync="demographic.comments" />
 
-        <p>""""debug use only"""" age = {{ demographic.age }}</p>
-        <p>""""debug use only"""" gender = {{ demographic.gender }}</p>
-        <p>""""debug use only"""" prof = {{ demographic.proficiency }}</p>
-        <p>""""debug use only"""" country = {{ demographic.country }}</p>
+        <p id="debugging">
+          """"debug use only"""" age = {{ demographic.age }} gender =
+          {{ demographic.gender }} prof = {{ demographic.proficiency }} country
+          = {{ demographic.country }}
+        </p>
 
         <button
           :disabled="
@@ -125,7 +170,8 @@
             demographic.country === 'Select country' ||
             demographic.age < 18 ||
             demographic.gender === null ||
-            demographic.proficiency === null
+            demographic.proficiency === null ||
+            demographic.emojiUsage === null
           "
           style="margin-top: 18px"
           @click="
@@ -133,25 +179,27 @@
               age: demographic.age,
               gender: demographic.gender,
               proficiency: demographic.proficiency,
-              country: demographic.country
+              country: demographic.country,
+              emojiUsage: demographic.emojiUsage,
+              comments: demographic.comments
             });
             $magpie.saveAndNextScreen();
           "
         >
-          Next
+          Submit results
         </button>
       </Slide>
     </Screen>
 
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <PostTestScreen
+    <!-- <PostTestScreen
       :age="false"
       :education="false"
       :gender="false"
       :languages="false"
-    >
-      <!-- <template #default="{ measurements }">
+    > -->
+    <!-- <template #default="{ measurements }">
 
     <p>Which best describes you?</p>
     <select v-model="measurements.gender">
@@ -161,7 +209,7 @@
       <option value="other">Another identity</option>
     </select>
   </template> -->
-    </PostTestScreen>
+    <!-- </PostTestScreen> -->
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
        this screen will show the results of the current experiment directly. Once you switch to directLink or prolific
@@ -175,18 +223,16 @@ import _ from 'lodash';
 import { COUNTRIES_LIST } from '@/data/countryList';
 
 const CONTEXTS = [
-  { action: 'attended a concert.', item: 'concert' },
-  { action: 'tried a pizza.', item: 'pizza' },
-  { action: 'watched a movie.', item: 'movie' },
-  { action: 'tried a cookie.', item: 'cookie' },
-  { action: 'reviewed a restaurant meal.', item: 'restaurant meal' },
-  { action: 'tried a coffee.', item: 'coffee' },
-  { action: 'attened a party.', item: 'party' }
+  { action: 'attended a concert', item: 'concert' },
+  { action: 'tried a pizza', item: 'pizza' },
+  { action: 'watched a movie', item: 'movie' },
+  { action: 'tried a cookie', item: 'cookie' },
+  { action: 'reviewed a restaurant meal', item: 'restaurant meal' },
+  { action: 'tried a coffee', item: 'coffee' },
+  { action: 'attended a party', item: 'party' }
 ];
 
-const STARS = [1, 2, 3, 4, 5];
-
-const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
+const STATES = [1, 2, 3, 4, 5];
 
 const PERSONS = ['Alice', 'Bob', 'Chris', 'Dani'];
 
@@ -194,32 +240,59 @@ export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(2),
+      trials: this.makeTrials(5),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
   methods: {
     makeTrials(n) {
-      return _.times(n, () => ({
-        person: _.sample(PERSONS),
-        context: _.sample(CONTEXTS),
-        stars: _.sample(STARS),
-        adj: _.sample(ADJECTIVES),
-        arousal: 0,
-        valence: 0
-      }));
+      const attentionPositions = [Math.floor(n / 3), Math.floor((2 * n) / 3)];
+
+      const trials = [];
+
+      for (let i = 0; i < n; i++) {
+        if (attentionPositions.includes(i)) {
+          trials.push({
+            isTrial: false,
+            trialValence: _.sample(STATES), // convenient sampling from 1-5
+            trialArousal: _.sample(STATES),
+            person: _.sample(PERSONS),
+            context: _.sample(CONTEXTS),
+            state: _.sample(STATES),
+            arousal: 0,
+            valence: 0
+          });
+        }
+
+        trials.push({
+          isTrial: true,
+          trialValence: 0,
+          trialArousal: 0,
+          person: _.sample(PERSONS),
+          context: _.sample(CONTEXTS),
+          state: _.sample(STATES),
+          arousal: 0,
+          valence: 0
+        });
+      }
+
+      return trials;
     }
   }
 };
 </script>
 
 <style>
-#trial-context {
+/* #trial-context {
   font-size: 20px;
-}
+} */
 
 /* #trial-state {
   color: #db153b;
 } */
+
+#debugging {
+  font-size: 10px;
+}
 </style>
