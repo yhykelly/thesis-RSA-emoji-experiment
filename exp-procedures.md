@@ -5,7 +5,7 @@
 - [Demographics](#demographics-asked-in-all-experiments)
 
 ## Exp 1a: Literal Semantics (adjective applicability on rating states)
-
+https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1a/
 ### Procedures (order of "screens" participants see)
 1. Welcome screen
 2. Instructions screen
@@ -42,7 +42,7 @@ Expected time to complete: **5 minutes**
 
 
 ## Exp 1b: Emotions based on rating states
-
+https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/
 ### Procedures (order of "screens" participants see)
 1. Welcome screen
 2. Instructions screen: here the two emotion dimensions are briefly defined (Valence and Arousal)
@@ -75,7 +75,7 @@ Expected time to complete: **5 minutes**
 - `PERSONS`: {'Alice', 'Bob', 'Chris', 'Dani'}  
 
 ## Exp 2: Emoji semantics
-
+https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp2/  
 ### Procedures (order of "screens" participants see)
 1. Welcome screen
 2. Instructions screen: here the two emotion dimensions are briefly defined (Valence and Arousal)
