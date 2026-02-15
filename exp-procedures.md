@@ -16,8 +16,8 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1a/
 Expected time to complete: **5 minutes**
 
 ### Trials
-#### Main Trials: 20 Trials  
-- Stimulus: short event `context` + rating `state` (out of 5 stars) + description sentence with the `adjective`  
+#### Main Trials: 25 Trials  
+- Stimulus: short event `context` + rating `state` (out of 5 stars) + description sentence with the `adjective` (5 `state`'s * 5 `adjective`'s = 25 combos)
 - Response: 9-point Likert Scale (not applicable at all <--> very applicable)
 - Per trial, the combination of the event context, person (subject for the context), rating and adjective is randomized. (see below)
 
@@ -38,7 +38,31 @@ Expected time to complete: **5 minutes**
                 { action: 'attended a party', item: 'party' }  
 - `STATES`: {1, 2, 3, 4, 5} out of 5 stars  
 - `ADJECTIVES`: {“terrible”, “bad”, “okay”, “good”, “amazing”}  
-- `PERSONS`: {'Alice', 'Bob', 'Chris', 'Dani'}  
+- `PERSONS`: {'Alice',
+  'Bob',
+  'Chris',
+  'Dani',
+  'Emma',
+  'Liam',
+  'Noah',
+  'Olivia',
+  'Mia',
+  'Lucas',
+  'Sophia',
+  'James',
+  'Emily',
+  'Daniel',
+  'Sarah',
+  'Michael',
+  'Anna',
+  'David',
+  'Laura',
+  'John',
+  'Lisa',
+  'Mark',
+  'Julia',
+  'Paul',
+  'Tom'}  
 
 
 ## Exp 1b: Emotions based on rating states
@@ -53,12 +77,12 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/
 Expected time to complete: **5 minutes**
 
 ### Trials
-#### Main Trials: 25 Trials  
-- Stimulus: short event `context` + rating `state` (out of 5 stars)
+#### Main Trials: 10 Trials  
+- Stimulus: short event `context` + rating `state` (out of 5 stars), 2 trials per state
 - Response: Two 9-point Likert Scales
     - Valence (negative/unpleasant <--> positive/pleasant)
     - Arousal (calm/passive <--> intense/exciting)
-- Per trial, the combination of the event context, person (subject for the context), rating is randomized. (see below)
+- Per trial, the combination of the event context, person (subject for the context), rating is randomized. (Randomized stimulus see below)
 
 #### Attention-Check (AC): 2 Trials
 - Stimulus: Highly similar to the Main Trials, but extended the check instruction after the context , e.g. “... a rating of 1 out of 5 stars. For this trial, select 3 for the first scale and 4 for the second.”    
@@ -66,13 +90,22 @@ Expected time to complete: **5 minutes**
     - Valence (negative/unpleasant <--> positive/pleasant)
     - Arousal (calm/passive <--> intense/exciting)
 - ACs are inserted at fixed positions relative to the number of Main Trials: at the 1/3 and 2/3 of the whole trial timeline, that is:  
-    - one AC after the 8th (floor (25 / 3)) Main Trial, one after the 16th (floor (25 * 2 / 3)) Main Trial.  
+    - one AC after the 3th (floor (10 / 3)) Main Trial, one after the 6th (floor (10 * 2 / 3)) Main Trial.  
 - The instructed ratings per AC per participant are randomised.  
 
 #### Randomized stimulus components
 - `CONTEXTS`: Same as experiment 1a 
 - `STATES`: {1, 2, 3, 4, 5} out of 5 stars  
-- `PERSONS`: {'Alice', 'Bob', 'Chris', 'Dani'}  
+- `PERSONS`: {'Alice',
+  'Bob',
+  'Chris',
+  'Dani',
+  'Emma',
+  'Liam',
+  'Noah',
+  'Olivia',
+  'Mia',
+  'Lucas'}  
 
 ## Exp 2: Emoji semantics
 https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp2/  
@@ -95,14 +128,14 @@ Expected time to complete: **5 minutes**
     - Arousal (calm/passive <--> intense/exciting)
 - The set of emojis are constant among participants, but the order of 12 emoji trials are randomised per participant.
 
-#### Attention-Check (AC): 1 Trial  
+#### Attention-Check (AC): 2 Trial  
 
 - Stimulus: Highly similar to the Main Trials, but the check instruction appeared above the emoji image with wordings e.g. “For this trial, select 1 for the first scale and 2 for the second.”  
 - Response: Two 9-point Likert Scales
     - Valence (negative/unpleasant <--> positive/pleasant)
     - Arousal (calm/passive <--> intense/exciting)
-- AC is inserted at one fixed position relative to the number of Main Trials: 2/3 of the whole trial timeline, that is:  
-    - After the 8th (floor (12 * 2 / 3)) Main Trial.  
+- ACs are inserted at fixed positions relative to the number of Main Trials: at the 1/3 and 2/3 of the whole trial timeline, that is:  
+    - one AC after the 4th (floor (12 / 3)) Main Trial, one after the 8th (floor (12 * 2 / 3)) Main Trial.   
 - The instructed ratings per participant are randomised.  
 
 #### Stimuli  
@@ -118,7 +151,7 @@ Expected time to complete: **5 minutes**
 
 
 ## Demographics asked in all experiments  
-
+Answering to demographic questions are optional in experiment 1a and 1b and mandatory in experiment 2. We are interested to see if there is any significant difference in the interpretations of emoji among groups.
 1. Age: Numerical input, with minimal = 18
 2. Gender: Dropdown list (female, male, other, prefer not to say)
 3. English Proficiency: 7-point Likert Scale (complete beignner <--> native speaker)
