@@ -8,18 +8,21 @@
         In this experiment, you will be asked to judge emotions based on ratings
         of everyday experiences.
       </p>
-      <p>The experiment takes about 5 minutes to complete.</p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
     <InstructionScreen :title="'Instruction'">
       <p>
-        On each trial, you will see a short description of a situation in which
-        a person rated an experience (for example, a movie or a meal).
+        On each trial, you will see how a person genuinely felt about about a
+        recent experience (for example, a movie or a meal).
+      </p>
+      <p>
+        The person’s true quality judgement is given as an
+        <strong>“X out of 5 stars”</strong> rating.
       </p>
       <p>
         Your task is to judge how the person felt about the experience based on
-        the rating they gave.
+        that true quality judgement.
       </p>
       <p>
         On each trial, you will rate the person’s emotion in terms of two
@@ -47,16 +50,16 @@
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
         <p id="trial-context">
-          <span v-if="trial.isTrial">
-            {{ trial.person }} {{ trial.context.action }} and rated it
+          <span v-if="trial.trialType === 'trial'">
+            {{ trial.person }} {{ trial.context.action }} and experienced it as
             <strong id="trial-state">
               {{ trial.state }} out of 5 stars.
             </strong>
           </span>
           <span v-else
             >{{ trial.person }} {{ trial.context.action }}. For this trial, rate
-            <strong>{{ trial.trialValence }}</strong> for the first scale and
-            <strong>{{ trial.trialArousal }}</strong> for the second.
+            <strong>{{ trial.attentionCheckV }}</strong> for the first scale and
+            <strong>{{ trial.attentionCheckA }}</strong> for the second.
           </span>
         </p>
         <!-- <p></p>
@@ -73,33 +76,30 @@
           :right="`${trial.person} felt very positive/pleasant`"
           :response.sync="trial.valence"
         />
-        <p>How calm or intense do you think that emotion was ?</p>
+        <p>How calm or arousing do you think that emotion was ?</p>
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
           left="The emotion was very calm/passive"
-          right="The emotion was very intense/exciting"
+          right="The emotion was very arousing/exciting"
           :response.sync="trial.arousal"
         />
-
-        <p id="debugging">
-          """DEBUG""" arousal is <strong>{{ trial.arousal }}</strong>
-        </p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
           style="margin-top: 18px"
-          :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
             $magpie.measurements.context = trial.context.item;
-            $magpie.measurements.stars = trial.stars;
+            $magpie.measurements.state = trial.state;
             $magpie.measurements.valence = trial.valence;
             $magpie.measurements.arousal = trial.arousal;
-            $magpie.measurements.isTrial = trial.isTrial;
+            $magpie.measurements.trialType = trial.trialType;
+            $magpie.measurements.attentionCheckV = trial.attentionCheckV;
+            $magpie.measurements.attentionCheckA = trial.attentionCheckA;
             $magpie.measurements.isPassedAttention =
-              trial.isTrial ||
-              (trial.trialValence === trial.valence &&
-                trial.trialArousal === trial.arousal);
+              trial.trialType === 'trial' ||
+              (trial.attentionCheckV === trial.valence &&
+                trial.attentionCheckA === trial.arousal);
             $magpie.saveAndNextScreen();
           "
         >
@@ -108,98 +108,10 @@
       </Slide>
     </Screen>
 
-    <Screen>
-      <Slide>
-        <p>1. What is your age?</p>
-        <p>
-          <label>
-            <input v-model="demographic.age" type="number" max="110" min="18" />
-          </label>
-        </p>
-        <p>
-          <label
-            >2. What is your gender?
-            <DropdownInput
-              :options="['', 'female', 'male', 'other', 'prefer not to say']"
-              :response.sync="demographic.gender"
-            />
-          </label>
-        </p>
-        <p>
-          <label
-            >3. How do you rate your English proficiency?
-            <RatingInput
-              left="Complete Beginner"
-              right="Native Speaker"
-              :response.sync="demographic.proficiency"
-            />
-          </label>
-        </p>
-        <p>
-          <label
-            >4. How frequently do you use or encounter emojis in your daily
-            life?
-            <RatingInput
-              left="Never"
-              right="Almost constantly"
-              :response.sync="demographic.emojiUsage"
-            />
-          </label>
-        </p>
-        <p>
-          <label
-            >5. Where do you currently live?
-            <DropdownInput
-              :options="COUNTRIES"
-              :response.sync="demographic.country"
-            />
-          </label>
-        </p>
-        <p>Further comments (optional)</p>
-        <TextareaInput :response.sync="demographic.comments" />
-
-        <p id="debugging">
-          """"debug use only"""" age = {{ demographic.age }} gender =
-          {{ demographic.gender }} prof = {{ demographic.proficiency }} country
-          = {{ demographic.country }}
-        </p>
-
-        <button
-          :disabled="
-            demographic.country === null ||
-            demographic.country === 'Select country' ||
-            demographic.age < 18 ||
-            demographic.gender === null ||
-            demographic.proficiency === null ||
-            demographic.emojiUsage === null
-          "
-          style="margin-top: 18px"
-          @click="
-            $magpie.addExpData({
-              age: demographic.age,
-              gender: demographic.gender,
-              proficiency: demographic.proficiency,
-              country: demographic.country,
-              emojiUsage: demographic.emojiUsage,
-              comments: demographic.comments
-            });
-            $magpie.saveAndNextScreen();
-          "
-        >
-          Submit results
-        </button>
-      </Slide>
-    </Screen>
-
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <!-- <PostTestScreen
-      :age="false"
-      :education="false"
-      :gender="false"
-      :languages="false"
-    > -->
-    <!-- <template #default="{ measurements }">
+    <PostTestScreen>
+      <!-- <template #default="{ measurements }">
 
     <p>Which best describes you?</p>
     <select v-model="measurements.gender">
@@ -209,7 +121,7 @@
       <option value="other">Another identity</option>
     </select>
   </template> -->
-    <!-- </PostTestScreen> -->
+    </PostTestScreen>
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
        this screen will show the results of the current experiment directly. Once you switch to directLink or prolific
@@ -234,29 +146,54 @@ const CONTEXTS = [
 
 const STATES = [1, 2, 3, 4, 5];
 
-const PERSONS = ['Alice', 'Bob', 'Chris', 'Dani'];
+const PERSONS = [
+  'Alice',
+  'Bob',
+  'Chris',
+  'Dani',
+  'Emma',
+  'Liam',
+  'Noah',
+  'Olivia',
+  'Mia',
+  'Lucas'
+];
 
 export default {
   name: 'AppExperiment1',
   data() {
     return {
-      trials: this.makeTrials(5),
+      trials: this.makeTrials(),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
       demographic: { age: null, gender: null, proficiency: null, country: null }
     };
   },
   methods: {
-    makeTrials(n) {
+    shufffleStateList(STATES) {
+      const first = _.shuffle(STATES);
+      let second = _.shuffle(STATES);
+
+      while (first[first.length - 1] === second[0]) {
+        second = _.shuffle(STATES);
+      }
+
+      return first.concat(second);
+    },
+
+    makeTrials() {
+      const n = 2 * STATES.length;
       const attentionPositions = [Math.floor(n / 3), Math.floor((2 * n) / 3)];
+      const mainStates = this.shufffleStateList(STATES);
+      const shuffledPersons = _.shuffle(PERSONS);
 
       const trials = [];
 
       for (let i = 0; i < n; i++) {
         if (attentionPositions.includes(i)) {
           trials.push({
-            isTrial: false,
-            trialValence: _.sample(STATES), // convenient sampling from 1-5
-            trialArousal: _.sample(STATES),
+            trialType: 'attention',
+            attentionCheckV: _.sample(STATES),
+            attentionCheckA: _.sample(STATES),
             person: _.sample(PERSONS),
             context: _.sample(CONTEXTS),
             state: _.sample(STATES),
@@ -266,12 +203,12 @@ export default {
         }
 
         trials.push({
-          isTrial: true,
-          trialValence: 0,
-          trialArousal: 0,
-          person: _.sample(PERSONS),
+          trialType: 'trial',
+          attentionCheckV: null,
+          attentionCheckA: null,
+          person: shuffledPersons[i],
           context: _.sample(CONTEXTS),
-          state: _.sample(STATES),
+          state: mainStates[i],
           arousal: 0,
           valence: 0
         });

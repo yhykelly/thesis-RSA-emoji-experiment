@@ -5,21 +5,21 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this experiment, you will be asked to judge how well short
-        descriptions apply to ratings of everyday experiences.
+        In this experiment, you will be asked to judge ratings of everyday
+        experiences based on short descriptions
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
     <InstructionScreen :title="'Instruction'">
       <p>
-        On each trial, you will see a short description of a situation in which
-        a person rated an experience.
+        On each trial, you will see a short sentence, with which a person
+        described an experience.
       </p>
-      <p>You will then see a sentence describing the experience.</p>
       <p>
-        Your task is to judge how applicable this description is given the
-        rating.
+        Your task is to judge how the person truly experienced it by rating with
+        a 5-star scale, where 1 denotes the worst experience, 5 denotes the best
+        experience.
       </p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
@@ -31,44 +31,80 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p id="given">
-          {{ trial.person }} {{ trial.context.action }} and experienced it as
-          <strong> {{ trial.state }} out of 5 stars</strong>
+        <p v-if="trial.trialType === 'attention'" id="trial-sentence">
+          put the attention check condition here.
         </p>
-
-        <p id="given">How applicable is the description?</p>
-
-        <p v-if="trial.trialType === 'trial'" id="trial-sentence">
+        <p v-else id="given">
+          {{ trial.person }} {{ trial.context.action }}.
+          {{ trial.person }} posted this comment on (a social media platform / messaging app):
+        </p>
+        <p id="trial-sentence">
           <strong
-            >"{{ trial.person }} thought that the {{ trial.context.item }} was
-            <span id="trial-state">{{ trial.adj }}.</span>"</strong
+            >"The {{ trial.context.item }} was
+            <span id="trial-state"
+              >{{ trial.adj }}<span id="trial-emoji">{{ trial.emoji }}</span
+              >."
+            </span></strong
           >
         </p>
-
-        <p v-else id="trial-sentence">
-          <strong
-            >"{{ trial.person }} thought that the {{ trial.context.item }} was
-            <span id="trial-state">{{ trial.adj }}.</span>
-            For this trial, please select {{ trial.attentionCheck }} on the
-            scale."</strong
-          >
+        <p>
+          Out of five stars, how do you think {{ trial.person }} would have
+          actually rated the experience?
         </p>
 
         <RatingInput
+          :count="5"
+          left="1 star"
+          right="5 stars"
+          :response.sync="trial.inferredState"
+        />
+
+        <p>
+          Based on this comment, how likely do you think
+          {{ trial.person }} would have actually intended to communicate?
+        </p>
+
+        <p>
+          {{ trial.person }} intended to communicate <strong>only</strong> about the rating of the
+          experience.
+        </p>
+        <RatingInput
           :count="9"
-          left="not applicable at all"
-          right="very applicable"
-          :response.sync="trial.applicability"
+          left="very unlikely"
+          right="very likely"
+          :response.sync="trial.goalState"
+        />
+
+        <p>
+          {{ trial.person }} intended to communicate <strong>only</strong> about the emotion felt
+          about the experience.
+        </p>
+        <RatingInput
+          :count="9"
+          left="very unlikely"
+          right="very likely"
+          :response.sync="trial.goalValenceArousal"
+        />
+
+        <p>
+          {{ trial.person }} intended to communicate about <strong>both</strong> the rating
+          of the experience, and the emotion felt about it.
+        </p>
+        <RatingInput
+          :count="9"
+          left="very unlikely"
+          right="very likely"
+          :response.sync="trial.goalAll"
         />
 
         <button
-          v-if="trial.applicability != null && trial.applicability !== 0"
+          v-if="trial.inferredState != null && trial.inferredState !== 0"
           style="margin-top: 18px"
           @click="
             $magpie.measurements.context = trial.context.item;
             $magpie.measurements.state = trial.state;
             $magpie.measurements.adj = trial.adj;
-            $magpie.measurements.applicability = trial.applicability;
+            $magpie.measurements.inferredState = trial.inferredState;
             $magpie.measurements.trialType = trial.trialType;
             $magpie.measurements.attentionCheck = trial.attentionCheck;
             $magpie.measurements.isPassedAttention =
@@ -118,7 +154,10 @@ const CONTEXTS = [
 ];
 
 const STATES = [1, 2, 3, 4, 5];
-const ADJECTIVES = ['terrible', 'bad', 'okay', 'good', 'amazing'];
+const GOOD_ADJECTIVES = ['good', 'amazing'];
+const NEUTRAL_ADJECTIVES = ['okay'];
+const BAD_ADJECTIVES = ['terrible', 'bad'];
+const ALL_ADJECTIVES = ['good', 'amazing', 'okay', 'terrible', 'bad'];
 const PERSONS = [
   'Alice',
   'Bob',
@@ -144,8 +183,62 @@ const PERSONS = [
   'Mark',
   'Julia',
   'Paul',
-  'Tom'
+  'Tom',
+  'Sam',
+  'Peter'
 ];
+// possible combo = 2 * 6 = 12
+const GOOD_EMOJIS = [
+  'grinning',
+  'slightly_smiling_face',
+  'smile',
+  'relaxed',
+  'laughing',
+  'null'
+];
+// possible combo = 1 * 3 = 3
+const NEUTRAL_EMOJIS = ['neutral_face', 'kissing', 'null'];
+
+// possible combo = 2 * 6 = 12
+const BAD_EMOJIS = [
+  'pensive',
+  'slightly_frowning_face',
+  'weary',
+  'white_frowning_face',
+  'angry',
+  'null'
+];
+
+const ALL_EMOJIS = [
+  'angry',
+  'grinning',
+  'kissing',
+  'laughing',
+  'neutral_face',
+  'pensive',
+  'relaxed',
+  'slightly_frowning_face',
+  'slightly_smiling_face',
+  'smile',
+  'weary',
+  'white_frowning_face'
+];
+
+const EMOJIS_MAPPING = {
+  angry: '😀',
+  grinning: '😃',
+  kissing: '😃',
+  laughing: '😃',
+  neutral_face: '😃',
+  pensive: '😃',
+  relaxed: '🤐',
+  slightly_frowning_face: '🥲',
+  slightly_smiling_face: '🥲',
+  smile: '🥲',
+  weary: '🤕',
+  white_frowning_face: '🤕',
+  null: ''
+};
 
 export default {
   name: 'AppExperiment1',
@@ -159,11 +252,22 @@ export default {
 
   methods: {
     makeTrials() {
-      // 1) Build 5 × 5 combo list (25 trials)
       const combos = [];
-      for (const state of STATES) {
-        for (const adj of ADJECTIVES) {
-          combos.push({ state, adj });
+      for (const adj of GOOD_ADJECTIVES) {
+        for (const emoji of GOOD_EMOJIS) {
+          combos.push({ adj, emoji });
+        }
+      }
+
+      for (const adj of BAD_ADJECTIVES) {
+        for (const emoji of BAD_EMOJIS) {
+          combos.push({ adj, emoji });
+        }
+      }
+
+      for (const emoji of NEUTRAL_EMOJIS) {
+        for (const adj of NEUTRAL_ADJECTIVES) {
+          combos.push({ adj, emoji });
         }
       }
 
@@ -187,9 +291,12 @@ export default {
             attentionCheck: _.sample(STATES),
             person: _.sample(PERSONS), // can repeat
             context: _.sample(CONTEXTS),
-            state: _.sample(STATES),
-            adj: _.sample(ADJECTIVES),
-            applicability: 0
+            emoji: EMOJIS_MAPPING[_.sample(ALL_EMOJIS)],
+            adj: _.sample(ALL_ADJECTIVES),
+            inferredState: 0,
+            inferredGoalState: 0,
+            inferredGoalVelnceArousal: 0,
+            inferredGoalAll: 0
           });
         }
 
@@ -199,9 +306,12 @@ export default {
           attentionCheck: null,
           person: shuffledPersons[i], // unique per main trial
           context: _.sample(CONTEXTS),
-          state: shuffledCombos[i].state,
           adj: shuffledCombos[i].adj,
-          applicability: 0
+          emoji: EMOJIS_MAPPING[shuffledCombos[i].emoji],
+          inferredState: 0,
+          inferredGoalState: 0,
+          inferredGoalVelnceArousal: 0,
+          inferredGoalAll: 0
         });
       }
 
@@ -221,11 +331,15 @@ export default {
 }
 
 #trial-sentence {
-  font-size: 19px;
+  font-size: 20px;
 }
 
-#trial-state {
+/* #trial-state {
   font-style: italic;
+} */
+
+#trial-emoji {
+  font-size: 22px;
 }
 
 #debugging {

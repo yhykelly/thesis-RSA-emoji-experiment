@@ -53,7 +53,7 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/
 Expected time to complete: **5 minutes**
 
 ### Trials
-#### Main Trials: 20 Trials  
+#### Main Trials: 25 Trials  
 - Stimulus: short event `context` + rating `state` (out of 5 stars)
 - Response: Two 9-point Likert Scales
     - Valence (negative/unpleasant <--> positive/pleasant)
@@ -112,8 +112,9 @@ Expected time to complete: **5 minutes**
 - Response format referencing previous works: 
     - Kutsuzawa et al. 2022: 9-point scale (1: displeasure to 9: pleasure for valence, and 1: weak to 9: strong for arousal)
     - Rodrigues et al. 2018: 7-point scale (1: very negative to 7: very positive for valence, and 1: very passive/calm to 7: very arousing/exciting for arousal)
-    - Ferré et al. 2023: 9-point scale (1: very negative to 9: very positive for valence, and 1: very passive/calm to 7: very arousing/exciting for arousal)
-    - Jaeger et al. 2019: 9-point scale using SAM (Self-Assessment Manikin). (pictorial instead of textual, though)
+    - Ferré et al. 2022: 9-point scale (1: very negative to 9: very positive for valence, and 1: very passive/calm to 7: very arousing/exciting for arousal)
+    - Fischer & Herbert 2021: 9-point scale using SAM (Self-Assessment Manikin) (explained Valence as 1 = “unpleasant/negative" and 9 = “pleasant/positive”, and Arousal as 1 = “calm” to 9 = “arousing")
+    - Jaeger et al. 2019: 9-point scale using SAM (Self-Assessment Manikin). (pictorial instead of textual, no textual explanation)
 
 
 ## Demographics asked in all experiments  

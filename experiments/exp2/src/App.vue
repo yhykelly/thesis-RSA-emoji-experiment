@@ -8,7 +8,6 @@
         In this experiment, you will be asked to judge emotions expressed by
         emojis.
       </p>
-      <p>The experiment takes around 5 minutes to complete.</p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
@@ -16,9 +15,18 @@
       <p>On each trial, you will see a common emoji.</p>
       <p>
         Your task is to judge the emotion you associate with the emoji face
-        shown.
+        shown in terms of two dimensions:
       </p>
-      <p></p>
+      <ul>
+        <li>
+          <strong>Valence</strong>: how negative/unpleasant or positive/pleasant
+          the emotion was, and
+        </li>
+        <li>
+          <strong>Arousal</strong>: how calm/passive or arousing/exciting the
+          emotion was.
+        </li>
+      </ul>
       <p>
         Please rely on your intuition and not worry about whether you use the
         emojis in your daily life, or how they might be used in different
@@ -34,52 +42,50 @@
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <Slide>
-        <p>A person sent the following emoji to you.</p>
-        <p>
-          You know nothing about the context, but that they wanted to express
-          their emotions with this emoji:
-        </p>
-        <p v-if="!trial.isTrial">
-          For this trial, please set {{ trial.trialValence }} for the first
-          scale and {{ trial.trialArousal }} for the second
+        <p>Please consider this emoji:</p>
+        <p v-if="trial.trialType === 'attention'">
+          For this trial, please set {{ trial.attentionCheckV }} for the first
+          scale and {{ trial.attentionCheckA }} for the second
         </p>
         <img :src="`img/${trial.emoji}.png`" style="width: 100px" />
-        <p>How negative or positive do you think this person felt?</p>
+        <p>
+          To what extent do you think the emoji denotes something negative or
+          something positive?
+        </p>
 
         <RatingInput
           :count="9"
-          left="The person felt very negative/unpleasant"
-          right="The person felt very positive/pleasant"
+          left="Very negative/unpleasant"
+          right="Very positive/pleasant"
           :response.sync="trial.valence"
         />
 
-        <p>How calm or intense do you think the emotion was?</p>
+        <p>
+          To what extent do you think the emoji denotes something passive or
+          something arousing?
+        </p>
 
         <RatingInput
           :count="9"
-          left="The emotion was very calm/passive"
-          right="The emotion was very intense/exciting"
+          left="Very passive/calm"
+          right="Very arousing/exciting"
           :response.sync="trial.arousal"
         />
-
-        <p id="debugging">
-          """"debug use only """" arousal = {{ trial.arousal }} valence =
-          {{ trial.valence }}
-        </p>
 
         <button
           v-if="trial.arousal != 0 && trial.valence != 0"
           style="margin-top: 18px"
-          :disabled="trial.arousal === 0 || trial.valence === 0"
           @click="
             $magpie.measurements.emoji = trial.emoji;
-            $magpie.measurements.arousal = trial.arousal;
             $magpie.measurements.valence = trial.valence;
-            $magpie.measurements.isTrial = trial.isTrial;
+            $magpie.measurements.arousal = trial.arousal;
+            $magpie.measurements.trialType = trial.trialType;
+            $magpie.measurements.attentionCheckV = trial.attentionCheckV;
+            $magpie.measurements.attentionCheckA = trial.attentionCheckA;
             $magpie.measurements.isPassedAttention =
-              trial.isTrial ||
-              (trial.trialValence === trial.valence &&
-                trial.trialArousal === trial.arousal);
+              trial.trialType === 'trial' ||
+              (trial.attentionCheckV === trial.valence &&
+                trial.attentionCheckA === trial.arousal);
             $magpie.saveAndNextScreen();
           "
         >
@@ -90,15 +96,16 @@
 
     <Screen>
       <Slide>
-        <p>1. What is your age?</p>
+        <h3>Additional information</h3>
+        <strong>1. What is your age?</strong>
         <p>
           <label>
             <input v-model="demographic.age" type="number" max="110" min="18" />
           </label>
         </p>
         <p>
-          <label
-            >2. What is your gender?
+          <label>
+            <strong>2. What is your gender?</strong>
             <DropdownInput
               :options="['', 'female', 'male', 'other', 'prefer not to say']"
               :response.sync="demographic.gender"
@@ -106,8 +113,8 @@
           </label>
         </p>
         <p>
-          <label
-            >3. How do you rate your English proficiency?
+          <label>
+            <strong>3. How do you rate your English proficiency?</strong>
             <RatingInput
               left="Complete Beginner"
               right="Native Speaker"
@@ -116,9 +123,11 @@
           </label>
         </p>
         <p>
-          <label
-            >4. How frequently do you use or encounter emojis in your daily
-            life?
+          <label>
+            <strong>
+              4. How frequently do you use or encounter emojis in your daily
+              life?
+            </strong>
             <RatingInput
               left="Never"
               right="Almost constantly"
@@ -127,31 +136,25 @@
           </label>
         </p>
         <p>
-          <label
-            >5. Where do you currently live?
+          <label>
+            <strong> 5. Where do you currently live? </strong>
             <DropdownInput
               :options="COUNTRIES"
               :response.sync="demographic.country"
             />
           </label>
         </p>
-        <p>Further comments (optional)</p>
+        <p><strong> Further comments (optional) </strong></p>
         <TextareaInput :response.sync="demographic.comments" />
 
-        <p id="debugging">
-          """"debug use only"""" age = {{ demographic.age }} gender =
-          {{ demographic.gender }} prof = {{ demographic.proficiency }} country
-          = {{ demographic.country }}
-        </p>
-
         <button
-          :disabled="
-            demographic.country === null ||
-            demographic.country === 'Select country' ||
-            demographic.age < 18 ||
-            demographic.gender === null ||
-            demographic.proficiency === null ||
-            demographic.emojiUsage === null
+          v-if="
+            demographic.country !== null &&
+            demographic.country !== 'Select country' &&
+            demographic.age >= 18 &&
+            demographic.gender !== null &&
+            demographic.emojiUsage !== null &&
+            demographic.proficiency !== null
           "
           style="margin-top: 18px"
           @click="
@@ -172,14 +175,7 @@
     </Screen>
     <!-- This screen will ask some optional questions about the
            participant's background, like age, gender etc. -->
-    <!-- <PostTestScreen
-      :age="false"
-      :education="false"
-      :gender="false"
-      :languages="false"
-    >
-    <Screen> After answering the question, click "Next" to submit your results. </Screen>
-    </PostTestScreen> -->
+    <!-- <PostTestScreen /> -->
 
     <!-- While setting your experiment mode to 'debug' in the magpie config
        this screen will show the results of the current experiment directly. 
@@ -196,17 +192,17 @@ import { COUNTRIES_LIST } from '@/data/countryList';
 
 const EMOJIS = [
   'angry',
-  'grinning'
-  // 'kissing',
-  // 'laughing',
-  // 'neutral_face',
-  // 'pensive'
-  // 'relaxed',
-  // 'slightly_frowning_face',
-  // 'slightly_smiling_face',
-  // 'smile',
-  // 'weary',
-  // 'white_frowning_face'
+  'grinning',
+  'kissing',
+  'laughing',
+  'neutral_face',
+  'pensive',
+  'relaxed',
+  'slightly_frowning_face',
+  'slightly_smiling_face',
+  'smile',
+  'weary',
+  'white_frowning_face'
 ];
 
 const STATES = [1, 2, 3, 4, 5];
@@ -217,7 +213,13 @@ export default {
     return {
       trials: this.makeTrials(),
       COUNTRIES: COUNTRIES_LIST.map((c) => c.name),
-      demographic: { age: null, gender: null, proficiency: null, country: null }
+      demographic: {
+        age: null,
+        gender: null,
+        proficiency: null,
+        emojiUsage: null,
+        country: null
+      }
     };
   },
   methods: {
@@ -230,16 +232,16 @@ export default {
       //   Math.floor((2 * n) / 3)
       // ]);
 
-      const attentionPosition = Math.floor((2 * n) / 3);
+      const attentionPositions = [Math.floor(n / 3), Math.floor((2 * n) / 3)];
 
       const trials = [];
 
       for (let i = 0; i < n; i++) {
-        if (attentionPosition === i) {
+        if (attentionPositions.includes(i)) {
           trials.push({
-            isTrial: false,
-            trialValence: _.sample(STATES), // convenient sampling from 1-5
-            trialArousal: _.sample(STATES),
+            trialType: 'attention',
+            attentionCheckV: _.sample(STATES), // convenient sampling from 1-5
+            attentionCheckA: _.sample(STATES),
             emoji: _.sample(EMOJIS), // resample from the pool
             arousal: 0,
             valence: 0
@@ -247,9 +249,9 @@ export default {
         }
 
         trials.push({
-          isTrial: true,
-          trialValence: 0, // convenient sampling from 1-5
-          trialArousal: 0,
+          trialType: 'trial',
+          attentionCheckV: 0,
+          attentionCheckA: 0,
           emoji: emojiTrials[i],
           arousal: 0,
           valence: 0
