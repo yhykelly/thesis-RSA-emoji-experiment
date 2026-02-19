@@ -28,7 +28,7 @@
         </li>
       </ul>
       <p>
-        Please rely on your intuition and not worry about whether you use the
+        Please rely on your intuition and do not worry about whether you use the
         emojis in your daily life, or how they might be used in different
         subcultures. There are no right or wrong answers.
       </p>
@@ -166,7 +166,7 @@
               emojiUsage: demographic.emojiUsage,
               comments: demographic.comments
             });
-            $magpie.saveAndNextScreen();
+            $magpie.nextScreen();
           "
         >
           Submit results
@@ -242,7 +242,7 @@ export default {
             trialType: 'attention',
             attentionCheckV: _.sample(STATES), // convenient sampling from 1-5
             attentionCheckA: _.sample(STATES),
-            emoji: _.sample(EMOJIS), // resample from the pool
+            emoji: 'arrow_up', // resample from the pool
             arousal: 0,
             valence: 0
           });

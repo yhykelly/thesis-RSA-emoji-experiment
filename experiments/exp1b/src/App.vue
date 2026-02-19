@@ -5,8 +5,8 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this experiment, you will be asked to judge emotions based on ratings
-        of everyday experiences.
+        In this experiment, you will be asked to judge emotions of a person who
+        rated an everyday experience (like going to a restaurant).
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
@@ -14,11 +14,12 @@
     <InstructionScreen :title="'Instruction'">
       <p>
         On each trial, you will see how a person genuinely felt about about a
-        recent experience (for example, a movie or a meal).
+        recent experience (for example, a movie or a restaurant meal).
       </p>
       <p>
         The person’s true quality judgement is given as an
-        <strong>“X out of 5 stars”</strong> rating.
+        <strong>“X out of 5 stars”</strong> rating, where 1 star is the lowest
+        possible rating and 5 stars is the highest possible rating.
       </p>
       <p>
         Your task is to judge how the person felt about the experience based on
@@ -64,6 +65,10 @@
         </p>
         <!-- <p></p>
         <p>On a scale from 1 to 9,</p> -->
+        <p id="ratingReminder">
+          Reminder: 1 star is the lowest possible rating and 5 stars is the
+          highest possible rating.
+        </p>
         <p>
           How negative or positive do you think {{ trial.person }} felt about
           the {{ trial.context.item }}?
@@ -231,5 +236,11 @@ export default {
 
 #debugging {
   font-size: 10px;
+}
+
+#ratingReminder {
+  font-size: 13px;
+  font-style: italic;
+  color:gray
 }
 </style>

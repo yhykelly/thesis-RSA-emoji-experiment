@@ -5,8 +5,9 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this experiment, you will be asked to judge how well short
-        descriptions apply to ratings of everyday experiences.
+        In this experiment, you will be asked to judge how well short verbal
+        descriptions apply to star ratings of everyday experiences (like going
+        to a restaurant).
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
@@ -14,12 +15,19 @@
     <InstructionScreen :title="'Instruction'">
       <p>
         On each trial, you will see a short description of a situation in which
-        a person rated an experience.
+        a person rated an experience (for example, a movie or a restaurant
+        meal).
       </p>
+      <p>
+        The rating is presented as <strong>“X out of 5 stars”</strong>, where 1
+        star represents the lowest possible rating and 5 stars represents the
+        highest possible rating.
+      </p>
+
       <p>You will then see a sentence describing the experience.</p>
       <p>
-        Your task is to judge how applicable this description is given the
-        rating.
+        Your task is to judge how applicable this verbal description is, given
+        the star rating.
       </p>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
@@ -33,7 +41,11 @@
       <Slide>
         <p id="given">
           {{ trial.person }} {{ trial.context.action }} and experienced it as
-          <strong> {{ trial.state }} out of 5 stars</strong>
+          <strong> {{ trial.state }} out of 5 stars.</strong>
+        </p>
+        <p id="ratingReminder">
+          Reminder: 1 star is the lowest possible rating and 5 stars is the
+          highest possible rating.
         </p>
 
         <p id="given">How applicable is the description?</p>
@@ -234,6 +246,12 @@ export default {
 
 #question {
   font-style: bold;
+}
+
+#ratingReminder {
+  font-size: 14px;
+  font-style: italic;
+  color: gray;
 }
 
 /* #given {

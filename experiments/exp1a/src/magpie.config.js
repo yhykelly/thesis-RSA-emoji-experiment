@@ -1,11 +1,10 @@
 export default {
-  experimentId: '9',
-  serverUrl: 'https://thesis-exp-test.xxxx.com',
-  socketUrl: 'wss://thesis-exp-test.xxx.com/socket',
-  // this will be used in prolific mode
+  experimentId: '55',
+  serverUrl: 'https://magpie-cogsciprag.fly.dev',
+  socketUrl: 'wss://magpie-cogsciprag.fly.dev/socket',
   completionUrl: 'https://...',
   contactEmail: 'test@random.com',
   // Either 'debug', 'directLink' or 'prolific'
-  mode: 'debug',
+  mode: 'directLink',
   language: 'en'
 };
