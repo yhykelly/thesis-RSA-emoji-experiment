@@ -26,7 +26,7 @@
 
       <p>You will then see a sentence describing the experience.</p>
       <p>
-        Your task is to judge how applicable this verbal description is, given
+        Your task is to judge how applicable this sentence is given
         the star rating.
       </p>
       <p>Click “Next” to begin.</p>
