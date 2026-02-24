@@ -5,7 +5,7 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this experiment, you will be asked to judge emotions of a person who
+        In this experiment, you will be asked to judge the emotions of a person who
         rated an everyday experience (like going to a restaurant).
       </p>
       <p>Click “Next” to read the instructions.</p>
@@ -241,6 +241,6 @@ export default {
 #ratingReminder {
   font-size: 13px;
   font-style: italic;
-  color:gray
+  color: gray;
 }
 </style>
