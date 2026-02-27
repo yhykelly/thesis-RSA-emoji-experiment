@@ -1,4 +1,4 @@
-<!-- experiment 3a: full interpretation, inferred state and inferred goals -->
+<!-- experiment 3b: full interpretation, inferred emotion -->
 
 <template>
   <Experiment title="rsa emoji experiment">
