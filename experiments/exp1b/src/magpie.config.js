@@ -6,6 +6,6 @@ export default {
   completionUrl: 'https://app.prolific.com/submissions/complete?cc=CVZ2ZGX8',
   contactEmail: 'test@random.com',
   // Either 'debug', 'directLink' or 'prolific'
-  mode: 'prolific',
+  mode: 'debug',
   language: 'en'
 };
