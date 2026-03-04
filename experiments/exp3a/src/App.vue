@@ -1,12 +1,12 @@
 <!-- experiment 3a: full interpretation, inferred state and inferred goals -->
 
 <template>
-  <Experiment title="rsa emoji experiment">
+  <Experiment title="rsa emoji experiment 3a">
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
         In this experiment, you will be asked to judge ratings of everyday
-        experiences based on short descriptions
+        experiences based on short descriptions.
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
@@ -16,26 +16,26 @@
         On each trial, you will see a person's short comment describing an
         experience (for example, a movie or a restaurant meal).
       </p>
-      <p>
-        Your task is to judge how the person would have truly experienced it by
-        rating with a 5-star scale, where 1 star represents the lowest possible
-        rating and 5 stars represents the highest possible rating.
-      </p>
+      <p>Your task is to judge:</p>
+      <ul>
+        <li>
+          How the person would have truly experienced it by rating with a 5-star
+          scale, where 1 star represents the lowest possible rating and 5 stars
+          represents the highest possible rating; and
+        </li>
+        <li>What the person aimed to do through the message.</li>
+      </ul>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
-    <!-- We iterate over our experiment trials -->
-
-    <!-- and display a screen with a slider rating task
-             using the built-in SliderScreen component -->
-
     <Screen v-for="(trial, i) in trials" :key="i">
+      <!-- ATTENTION CHECK -->
       <Slide v-if="trial.trialType === 'attention'">
         <p id="trial-sentence"></p>
         <div>
           <p id="given">
             {{ trial.person }} {{ trial.context.action }}.
-            {{ trial.person }} sended this message to you:
+            {{ trial.person }} sent this message to you:
           </p>
 
           <p id="trial-sentence">
@@ -58,17 +58,17 @@
           actually rated the experience?
         </p>
 
-        <p id="ratingReminder">
-          Reminder: 1 star is the lowest possible rating and 5 stars is the
-          highest possible rating.
-        </p>
-
         <RatingInput
           :count="5"
           left="1 star"
           right="5 stars"
           :response.sync="trial.inferredState"
         />
+
+        <p id="ratingReminder">
+          Reminder: 1 star is the lowest possible rating and 5 stars is the
+          highest possible rating.
+        </p>
 
         <button
           v-if="trial.inferredState != null && trial.inferredState !== 0"
@@ -87,16 +87,14 @@
         </button>
       </Slide>
 
-      <!-- PAGE 2: INTENTION -->
+      <!-- MAIN TRIAL -->
       <Screen v-else>
         <Slide>
           <!-- v-if="trial.page === 'experience'" -->
           <div>
             <p id="given">
               {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} sended this message to you: DEBUG: INFEREED
-              STATE =
-              {{ trial.inferredState }}
+              {{ trial.person }} sent this message to you.
             </p>
 
             <p id="trial-sentence">
@@ -125,9 +123,9 @@
           />
 
           <p id="ratingReminder">
-          Reminder: 1 star is the lowest possible rating and 5 stars is the
-          highest possible rating.
-        </p>
+            Reminder: 1 star is the lowest possible rating and 5 stars is the
+            highest possible rating.
+          </p>
 
           <button
             v-if="trial.inferredState != null && trial.inferredState !== 0"
@@ -153,9 +151,7 @@
           <div>
             <p id="given">
               {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} posted this comment on (a social media platform
-              / messaging app): DEBUG: INFEREED STATE =
-              {{ trial.inferredState }}
+              {{ trial.person }} sent this message to you:
             </p>
 
             <p id="trial-sentence">
@@ -171,12 +167,11 @@
             </p>
           </div>
           <p>
-            Based on this comment, how likely do you think
-            {{ trial.person }} would have actually intended to communicate?
+            Based on what {{ trial.person }} said, how likely do you think
+            {{ trial.person }}'s goal was to be?
           </p>
-
           <p>
-            {{ trial.person }} intended to communicate
+            To communicate
             <strong>only</strong> about the rating of the experience.
           </p>
           <RatingInput
@@ -186,8 +181,10 @@
             :response.sync="trial.goalState"
           />
 
+          <br />
+
           <p>
-            {{ trial.person }} intended to communicate
+            To communicate
             <strong>only</strong> about the emotion felt about the experience.
           </p>
           <RatingInput
@@ -197,8 +194,10 @@
             :response.sync="trial.goalValenceArousal"
           />
 
+          <br />
+
           <p>
-            {{ trial.person }} intended to communicate about
+            To communicate about
             <strong>both</strong> the rating of the experience, and the emotion
             felt about it.
           </p>
@@ -208,6 +207,25 @@
             right="very likely"
             :response.sync="trial.goalAll"
           />
+
+          <!-- <SliderRangesInput
+            :min="0"
+            :max="100"
+            :initial="0"
+            :interval="10"
+            :tooltip="true"
+            :ranges="['state', 'emotion', 'state_emotion']"
+            :range-values.sync="$magpie.measurements.goals"
+          />
+          <p v-if="$magpie.measurements.goals">
+            {{ $magpie.measurements.goals[0] }} Rating only,
+            {{ $magpie.measurements.goals[1] }} Emotion only,
+            {{ $magpie.measurements.goals[2] }} Both rating and emotion
+          </p> -->
+
+          <!-- <MultipleChoiceInput
+            :response.sync= "$magpie.measurements.breakfast"
+            :options="['Rating only', 'Emotion only', 'Both rating and emotion']" /> -->
 
           <button
             v-if="
@@ -300,8 +318,8 @@ const PERSONS = [
   'Tom',
   'Sam',
   'Peter'
-];
-// possible combo = 2 * 6 = 12
+]; // 27 names
+
 const GOOD_EMOJIS = [
   'grinning',
   'slightly_smiling_face',
@@ -310,10 +328,9 @@ const GOOD_EMOJIS = [
   'laughing',
   'null'
 ];
-// possible combo = 1 * 3 = 3
+
 const NEUTRAL_EMOJIS = ['neutral_face', 'kissing', 'null'];
 
-// possible combo = 2 * 6 = 12
 const BAD_EMOJIS = [
   'pensive',
   'slightly_frowning_face',
@@ -339,23 +356,23 @@ const ALL_EMOJIS = [
 ];
 
 const EMOJIS_MAPPING = {
-  angry: '😀',
-  grinning: '😃',
-  kissing: '😃',
-  laughing: '😃',
-  neutral_face: '😃',
-  pensive: '😃',
-  relaxed: '🤐',
-  slightly_frowning_face: '🥲',
-  slightly_smiling_face: '🥲',
-  smile: '🥲',
-  weary: '🤕',
-  white_frowning_face: '🤕',
+  angry: '😠',
+  grinning: '😀',
+  kissing: '😗',
+  laughing: '😆',
+  neutral_face: '😐',
+  pensive: '😔',
+  relaxed: '☺️',
+  slightly_frowning_face: '🙁',
+  slightly_smiling_face: '🙂',
+  smile: '😊',
+  weary: '😩',
+  white_frowning_face: '☹️',
   null: ''
 };
 
 export default {
-  name: 'AppExperiment1',
+  name: 'AppExperiment3a',
   data() {
     return {
       trials: this.makeTrials()
@@ -368,16 +385,16 @@ export default {
 
       for (const adj of GOOD_ADJECTIVES) {
         for (const emoji of GOOD_EMOJIS) combos.push({ adj, emoji });
-      }
+      } // 6 * 2 = 12 combos
       for (const adj of BAD_ADJECTIVES) {
         for (const emoji of BAD_EMOJIS) combos.push({ adj, emoji });
-      }
+      } // 3 * 1 = 3 combos
       for (const emoji of NEUTRAL_EMOJIS) {
         for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
-      }
+      } // 6 * 2 12 combos
 
-      const shuffledCombos = _.shuffle(combos).slice(0, 4);
-      const shuffledPersons = _.shuffle(PERSONS).slice(0, 4);
+      const shuffledCombos = _.shuffle(combos).slice(0, 9); // total 27 combos, for checking here sliced until 9
+      const shuffledPersons = _.shuffle(PERSONS).slice(0, 9);
 
       const nMain = shuffledCombos.length;
 

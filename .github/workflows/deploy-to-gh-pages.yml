@@ -16,6 +16,8 @@ jobs:
           - experiments/exp1a/
           - experiments/exp1b/
           - experiments/exp2/
+          - experiments/exp3a/
+          - experiments/exp3b/
 
     runs-on: ubuntu-latest
     steps:

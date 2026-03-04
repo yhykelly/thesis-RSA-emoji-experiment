@@ -5,8 +5,9 @@
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
-        In this experiment, you will be asked to judge ratings of everyday
-        experiences based on short descriptions
+        In this experiment, you will be asked to judge the emotions of a person
+        who rated everyday experiences (like going to a restaurant) based on
+        short descriptions.
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
@@ -17,10 +18,19 @@
         experience (for example, a movie or a restaurant meal).
       </p>
       <p>
-        Your task is to judge how the person would have truly experienced it by
-        rating with a 5-star scale, where 1 star represents the lowest possible
-        rating and 5 stars represents the highest possible rating.
+        Your task is to rate the person’s emotion based on this comment, in
+        terms of two dimensions:
       </p>
+      <ul>
+        <li>
+          <strong>Valence</strong>: how negative/unpleasant or positive/pleasant
+          the emotion was, and
+        </li>
+        <li>
+          <strong>Arousal</strong>: how calm/passive or intense/exciting the
+          emotion was.
+        </li>
+      </ul>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -30,216 +40,83 @@
              using the built-in SliderScreen component -->
 
     <Screen v-for="(trial, i) in trials" :key="i">
-      <Slide v-if="trial.trialType === 'attention'">
-        <p id="trial-sentence"></p>
-        <div>
-          <p id="given">
-            {{ trial.person }} {{ trial.context.action }}.
-            {{ trial.person }} sended this message to you:
-          </p>
-
-          <p id="trial-sentence">
-            <strong>
-              "The {{ trial.context.item }} was
-              <span id="trial-state">
-                {{ trial.adj
-                }}<span v-if="trial.emoji !== ''" id="trial-emoji">
-                  {{ trial.emoji }}</span
-                >.</span
-              >
-              For this trial, please select {{ trial.attentionCheck }} on the
-              scale."
-            </strong>
-          </p>
-        </div>
+      <Slide>
+        <p id="trial-context"></p>
+        <p>
+          {{ trial.person }} {{ trial.context.action }}. {{ trial.person }} sent
+          this message to you:
+        </p>
+        <p v-if="trial.trialType === 'trial'">
+          <strong>
+            "The {{ trial.context.item }} was
+            <span id="trial-state">
+              {{ trial.adj
+              }}<span v-if="trial.emoji !== ''" id="trial-emoji">
+                {{ trial.emoji }}</span
+              >.</span
+            >"
+          </strong>
+        </p>
+        <p v-else>
+          <strong>
+            "The {{ trial.context.item }} was
+            <span id="trial-state">
+              {{ trial.adj
+              }}<span v-if="trial.emoji !== ''" id="trial-emoji">
+                {{ trial.emoji }}</span
+              >.</span
+            >
+            <p>
+              For this trial, please select {{ trial.attentionCheckV }} on the
+              scale for the first scale and {{ trial.attentionCheckA }} for the
+              second."
+            </p>
+          </strong>
+        </p>
 
         <p>
-          Out of five stars, how do you think {{ trial.person }} would have
-          actually rated the experience?
+          How negative or positive do you think {{ trial.person }} felt about
+          the {{ trial.context.item }}?
         </p>
 
-        <p id="ratingReminder">
-          Reminder: 1 star is the lowest possible rating and 5 stars is the
-          highest possible rating.
-        </p>
-
+        <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
-          :count="5"
-          left="1 star"
-          right="5 stars"
-          :response.sync="trial.inferredState"
+          :count="9"
+          :left="`${trial.person} felt very negative/unpleasant`"
+          :right="`${trial.person} felt very positive/pleasant`"
+          :response.sync="trial.inferredValence"
+        />
+        <p>How calm or arousing do you think that emotion was ?</p>
+        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
+        <RatingInput
+          :count="9"
+          left="The emotion was very calm/passive"
+          right="The emotion was very arousing/exciting"
+          :response.sync="trial.inferredArousal"
         />
 
         <button
-          v-if="trial.inferredState != null && trial.inferredState !== 0"
+          v-if="trial.inferredValence != 0 && trial.inferredArousal != 0"
           style="margin-top: 18px"
           @click="
+            $magpie.measurements.context = trial.context.item;
+            $magpie.measurements.adj = trial.adj;
+            $magpie.measurements.emoji = trial.emoji;
+            $magpie.measurements.inferredValence = trial.inferredValence;
+            $magpie.measurements.inferredArousal = trial.inferredArousal;
             $magpie.measurements.trialType = trial.trialType;
-            $magpie.measurements.attentionCheck = trial.attentionCheck;
-            $magpie.measurements.inferredState = trial.inferredState;
+            $magpie.measurements.attentionCheckV = trial.attentionCheckV;
+            $magpie.measurements.attentionCheckA = trial.attentionCheckA;
             $magpie.measurements.isPassedAttention =
-              trial.attentionCheck === trial.inferredState;
-
+              trial.trialType === 'trial' ||
+              (trial.attentionCheckV === trial.inferredValence &&
+                trial.attentionCheckA === trial.inferredArousal);
             $magpie.saveAndNextScreen();
           "
         >
           Next
         </button>
       </Slide>
-
-      <!-- PAGE 2: INTENTION -->
-      <Screen v-else>
-        <Slide>
-          <!-- v-if="trial.page === 'experience'" -->
-          <div>
-            <p id="given">
-              {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} sended this message to you: DEBUG: INFEREED
-              STATE =
-              {{ trial.inferredState }}
-            </p>
-
-            <p id="trial-sentence">
-              <strong>
-                "The {{ trial.context.item }} was
-                <span id="trial-state">
-                  {{ trial.adj
-                  }}<span v-if="trial.emoji !== ''" id="trial-emoji">
-                    {{ trial.emoji }}</span
-                  >.</span
-                >"
-              </strong>
-            </p>
-          </div>
-          <!-- <slide> -->
-          <p>
-            Out of five stars, how do you think {{ trial.person }} would have
-            actually rated the experience?
-          </p>
-
-          <RatingInput
-            :count="5"
-            left="1 star"
-            right="5 stars"
-            :response.sync="trial.inferredState"
-          />
-
-          <p id="ratingReminder">
-          Reminder: 1 star is the lowest possible rating and 5 stars is the
-          highest possible rating.
-        </p>
-
-          <button
-            v-if="trial.inferredState != null && trial.inferredState !== 0"
-            style="margin-top: 18px"
-            @click="
-              $magpie.measurements.context = trial.context.item;
-              $magpie.measurements.emoji = trial.emoji;
-              $magpie.measurements.adj = trial.adj;
-              $magpie.measurements.trialType = trial.trialType;
-              $magpie.measurements.attentionCheck = trial.attentionCheck;
-              $magpie.measurements.inferredState = trial.inferredState;
-              $magpie.measurements.isPassedAttention =
-                trial.trialType === 'trial' ||
-                trial.attentionCheck === trial.inferredState;
-              $magpie.nextSlide();
-            "
-          >
-            Next
-          </button>
-        </Slide>
-
-        <Slide>
-          <div>
-            <p id="given">
-              {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} posted this comment on (a social media platform
-              / messaging app): DEBUG: INFEREED STATE =
-              {{ trial.inferredState }}
-            </p>
-
-            <p id="trial-sentence">
-              <strong>
-                "The {{ trial.context.item }} was
-                <span id="trial-state">
-                  {{ trial.adj
-                  }}<span v-if="trial.emoji !== ''" id="trial-emoji">
-                    {{ trial.emoji }}</span
-                  >.</span
-                >"
-              </strong>
-            </p>
-          </div>
-          <p>
-            Based on this comment, how likely do you think
-            {{ trial.person }} would have actually intended to communicate?
-          </p>
-
-          <p>
-            {{ trial.person }} intended to communicate
-            <strong>only</strong> about the rating of the experience.
-          </p>
-          <RatingInput
-            :count="9"
-            left="very unlikely"
-            right="very likely"
-            :response.sync="trial.goalState"
-          />
-
-          <p>
-            {{ trial.person }} intended to communicate
-            <strong>only</strong> about the emotion felt about the experience.
-          </p>
-          <RatingInput
-            :count="9"
-            left="very unlikely"
-            right="very likely"
-            :response.sync="trial.goalValenceArousal"
-          />
-
-          <p>
-            {{ trial.person }} intended to communicate about
-            <strong>both</strong> the rating of the experience, and the emotion
-            felt about it.
-          </p>
-          <RatingInput
-            :count="9"
-            left="very unlikely"
-            right="very likely"
-            :response.sync="trial.goalAll"
-          />
-
-          <button
-            v-if="
-              trial.goalState != null &&
-              trial.goalState !== 0 &&
-              trial.goalValenceArousal != null &&
-              trial.goalValenceArousal !== 0 &&
-              trial.goalAll != null &&
-              trial.goalAll !== 0
-            "
-            style="margin-top: 18px"
-            @click="
-              $magpie.measurements.context = trial.context.item;
-              $magpie.measurements.emoji = trial.emoji;
-              $magpie.measurements.adj = trial.adj;
-              $magpie.measurements.inferredState = trial.inferredState;
-              $magpie.measurements.goalState = trial.goalState;
-              $magpie.measurements.goalValenceArousal =
-                trial.goalValenceArousal;
-              $magpie.measurements.goalAll = trial.goalAll;
-              $magpie.measurements.trialType = trial.trialType;
-              $magpie.measurements.attentionCheck = trial.attentionCheck;
-              $magpie.measurements.isPassedAttention =
-                trial.trialType === 'trial' ||
-                trial.attentionCheck === trial.inferredState;
-              $magpie.saveAndNextScreen();
-            "
-          >
-            Next
-          </button>
-        </Slide>
-      </Screen>
     </Screen>
 
     <!-- This screen will ask some optional questions about the
@@ -339,18 +216,18 @@ const ALL_EMOJIS = [
 ];
 
 const EMOJIS_MAPPING = {
-  angry: '😀',
-  grinning: '😃',
-  kissing: '😃',
-  laughing: '😃',
-  neutral_face: '😃',
-  pensive: '😃',
-  relaxed: '🤐',
-  slightly_frowning_face: '🥲',
-  slightly_smiling_face: '🥲',
-  smile: '🥲',
-  weary: '🤕',
-  white_frowning_face: '🤕',
+  angry: '😠',
+  grinning: '😀',
+  kissing: '😗',
+  laughing: '😆',
+  neutral_face: '😐',
+  pensive: '😔',
+  relaxed: '☺️',
+  slightly_frowning_face: '🙁',
+  slightly_smiling_face: '🙂',
+  smile: '😊',
+  weary: '😩',
+  white_frowning_face: '☹️',
   null: ''
 };
 
@@ -393,30 +270,28 @@ export default {
         if (attentionPositions.includes(i)) {
           trials.push({
             trialType: 'attention',
-            attentionCheck: _.sample(STATES),
+            attentionCheckA: _.sample(STATES),
+            attentionCheckV: _.sample(STATES),
             person: _.sample(PERSONS),
             context: _.sample(CONTEXTS),
             emoji: EMOJIS_MAPPING[_.sample(ALL_EMOJIS)],
             adj: _.sample(ALL_ADJECTIVES),
-            inferredState: 0,
-            inferredGoalState: 0,
-            inferredGoalVelnceArousal: 0,
-            inferredGoalAll: 0
+            inferredArousal: 0,
+            inferredValence: 0
           });
         }
 
         // main trial
         trials.push({
           trialType: 'trial',
-          attentionCheck: null,
+          attentionCheckA: null,
+          attentionCheckV: null,
           person: shuffledPersons[i], // unique per main trial
           context: _.sample(CONTEXTS),
           adj: shuffledCombos[i].adj,
           emoji: EMOJIS_MAPPING[shuffledCombos[i].emoji],
-          inferredState: 0,
-          inferredGoalState: 0,
-          inferredGoalVelnceArousal: 0,
-          inferredGoalAll: 0
+          inferredArousal: 0,
+          inferredValence: 0
         });
       }
 
