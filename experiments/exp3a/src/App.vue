@@ -19,23 +19,21 @@
       <p>Your task is to judge:</p>
       <ul>
         <li>
-          How the person would have truly experienced it by rating with a 5-star
-          scale, where 1 star represents the lowest possible rating and 5 stars
-          represents the highest possible rating; and
+          How the person has truly liked it (on a scale from 1
+          to 5 stars); and
         </li>
-        <li>What the person aimed to do through the message.</li>
+        <li>What the person has aimed to communicate through the message.</li>
       </ul>
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
     <Screen v-for="(trial, i) in trials" :key="i">
       <!-- ATTENTION CHECK -->
-      <Slide v-if="trial.trialType === 'attention'">
-        <p id="trial-sentence"></p>
-        <div>
+      <Slide>
+        <div v-if="trial.trialType === 'attention'">
           <p id="given">
-            {{ trial.person }} {{ trial.context.action }}.
-            {{ trial.person }} sent this message to you:
+            {{ trial.person.name }} {{ trial.context.action }}.
+            {{ trial.person.name }} sent this message to you:
           </p>
 
           <p id="trial-sentence">
@@ -51,50 +49,51 @@
               scale."
             </strong>
           </p>
+
+          <p>
+            Out of five stars, how do you think {{ trial.person.name }} would
+            have actually rated the experience?
+          </p>
+
+          <RatingInput
+            :count="5"
+            left="1 star"
+            right="5 stars"
+            :response.sync="trial.inferredState"
+          />
+          <button
+            v-if="
+              trial.inferredState != null &&
+              trial.inferredState !== 0 
+            "
+            style="margin-top: 18px"
+            @click="
+              $magpie.measurements.context = trial.context.item;
+              $magpie.measurements.emoji = trial.emoji;
+              $magpie.measurements.adj = trial.adj;
+              $magpie.measurements.trialType = trial.trialType;
+              $magpie.measurements.attentionCheck = trial.attentionCheck;
+              $magpie.measurements.inferredState = trial.inferredState;
+              $magpie.measurements.goalState = trial.goalState;
+              $magpie.measurements.goalEmotion = trial.goalEmotion;
+              $magpie.measurements.isPassedAttention =
+                trial.trialType === 'trial' ||
+                trial.attentionCheck === trial.inferredState;
+              $magpie.saveAndNextScreen();
+            "
+          >
+            Next
+          </button>
         </div>
 
-        <p>
-          Out of five stars, how do you think {{ trial.person }} would have
-          actually rated the experience?
-        </p>
+        <!-- MAIN TRIAL -->
 
-        <RatingInput
-          :count="5"
-          left="1 star"
-          right="5 stars"
-          :response.sync="trial.inferredState"
-        />
-
-        <p id="ratingReminder">
-          Reminder: 1 star is the lowest possible rating and 5 stars is the
-          highest possible rating.
-        </p>
-
-        <button
-          v-if="trial.inferredState != null && trial.inferredState !== 0"
-          style="margin-top: 18px"
-          @click="
-            $magpie.measurements.trialType = trial.trialType;
-            $magpie.measurements.attentionCheck = trial.attentionCheck;
-            $magpie.measurements.inferredState = trial.inferredState;
-            $magpie.measurements.isPassedAttention =
-              trial.attentionCheck === trial.inferredState;
-
-            $magpie.saveAndNextScreen();
-          "
-        >
-          Next
-        </button>
-      </Slide>
-
-      <!-- MAIN TRIAL -->
-      <Screen v-else>
-        <Slide>
-          <!-- v-if="trial.page === 'experience'" -->
+        <!-- v-if="trial.page === 'experience'" -->
+        <div v-else>
           <div>
             <p id="given">
-              {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} sent this message to you.
+              {{ trial.person.name }} {{ trial.context.action }}.
+              {{ trial.person.name }} sent this message to you.
             </p>
 
             <p id="trial-sentence">
@@ -109,10 +108,13 @@
               </strong>
             </p>
           </div>
-          <!-- <slide> -->
+          <p>What do you think of {{ trial.person.name }}'s utterance?</p>
+
           <p>
-            Out of five stars, how do you think {{ trial.person }} would have
-            actually rated the experience?
+            <strong>
+              On a scale from 1 star to 5 stars, how much did
+              {{ trial.person.name }} truly like the {{ trial.context.item }}?
+            </strong>
           </p>
 
           <RatingInput
@@ -122,58 +124,15 @@
             :response.sync="trial.inferredState"
           />
 
-          <p id="ratingReminder">
+          <!-- <p id="ratingReminder">
             Reminder: 1 star is the lowest possible rating and 5 stars is the
             highest possible rating.
-          </p>
+          </p> -->
 
-          <button
-            v-if="trial.inferredState != null && trial.inferredState !== 0"
-            style="margin-top: 18px"
-            @click="
-              $magpie.measurements.context = trial.context.item;
-              $magpie.measurements.emoji = trial.emoji;
-              $magpie.measurements.adj = trial.adj;
-              $magpie.measurements.trialType = trial.trialType;
-              $magpie.measurements.attentionCheck = trial.attentionCheck;
-              $magpie.measurements.inferredState = trial.inferredState;
-              $magpie.measurements.isPassedAttention =
-                trial.trialType === 'trial' ||
-                trial.attentionCheck === trial.inferredState;
-              $magpie.nextSlide();
-            "
-          >
-            Next
-          </button>
-        </Slide>
-
-        <Slide>
-          <div>
-            <p id="given">
-              {{ trial.person }} {{ trial.context.action }}.
-              {{ trial.person }} sent this message to you:
-            </p>
-
-            <p id="trial-sentence">
-              <strong>
-                "The {{ trial.context.item }} was
-                <span id="trial-state">
-                  {{ trial.adj
-                  }}<span v-if="trial.emoji !== ''" id="trial-emoji">
-                    {{ trial.emoji }}</span
-                  >.</span
-                >"
-              </strong>
-            </p>
-          </div>
-          <p>
-            Based on what {{ trial.person }} said, how likely do you think
-            {{ trial.person }}'s goal was to be?
-          </p>
-          <p>
-            To communicate
-            <strong>only</strong> about the rating of the experience.
-          </p>
+          <strong>
+            How likely did {{ trial.person.name }} want to communicate how much
+            {{ trial.person.pronoun }} liked the {{ trial.context.item }}?
+          </strong>
           <RatingInput
             :count="9"
             left="very unlikely"
@@ -181,73 +140,37 @@
             :response.sync="trial.goalState"
           />
 
-          <br />
-
-          <p>
-            To communicate
-            <strong>only</strong> about the emotion felt about the experience.
-          </p>
+          <strong>
+            How likely did {{ trial.person.name }} want to communicate the
+            emotion that {{ trial.person.pronoun }} felt about the
+            {{ trial.context.item }}?
+          </strong>
           <RatingInput
             :count="9"
             left="very unlikely"
             right="very likely"
-            :response.sync="trial.goalValenceArousal"
+            :response.sync="trial.goalEmotion"
           />
-
-          <br />
-
-          <p>
-            To communicate about
-            <strong>both</strong> the rating of the experience, and the emotion
-            felt about it.
-          </p>
-          <RatingInput
-            :count="9"
-            left="very unlikely"
-            right="very likely"
-            :response.sync="trial.goalAll"
-          />
-
-          <!-- <SliderRangesInput
-            :min="0"
-            :max="100"
-            :initial="0"
-            :interval="10"
-            :tooltip="true"
-            :ranges="['state', 'emotion', 'state_emotion']"
-            :range-values.sync="$magpie.measurements.goals"
-          />
-          <p v-if="$magpie.measurements.goals">
-            {{ $magpie.measurements.goals[0] }} Rating only,
-            {{ $magpie.measurements.goals[1] }} Emotion only,
-            {{ $magpie.measurements.goals[2] }} Both rating and emotion
-          </p> -->
-
-          <!-- <MultipleChoiceInput
-            :response.sync= "$magpie.measurements.breakfast"
-            :options="['Rating only', 'Emotion only', 'Both rating and emotion']" /> -->
 
           <button
             v-if="
+              trial.inferredState != null &&
+              trial.inferredState !== 0 &&
               trial.goalState != null &&
               trial.goalState !== 0 &&
-              trial.goalValenceArousal != null &&
-              trial.goalValenceArousal !== 0 &&
-              trial.goalAll != null &&
-              trial.goalAll !== 0
+              trial.goalEmotion != null &&
+              trial.goalEmotion !== 0
             "
             style="margin-top: 18px"
             @click="
               $magpie.measurements.context = trial.context.item;
               $magpie.measurements.emoji = trial.emoji;
               $magpie.measurements.adj = trial.adj;
-              $magpie.measurements.inferredState = trial.inferredState;
-              $magpie.measurements.goalState = trial.goalState;
-              $magpie.measurements.goalValenceArousal =
-                trial.goalValenceArousal;
-              $magpie.measurements.goalAll = trial.goalAll;
               $magpie.measurements.trialType = trial.trialType;
               $magpie.measurements.attentionCheck = trial.attentionCheck;
+              $magpie.measurements.inferredState = trial.inferredState;
+              $magpie.measurements.goalState = trial.goalState;
+              $magpie.measurements.goalEmotion = trial.goalEmotion;
               $magpie.measurements.isPassedAttention =
                 trial.trialType === 'trial' ||
                 trial.attentionCheck === trial.inferredState;
@@ -256,8 +179,8 @@
           >
             Next
           </button>
-        </Slide>
-      </Screen>
+        </div>
+      </Slide>
     </Screen>
 
     <!-- This screen will ask some optional questions about the
@@ -291,33 +214,33 @@ const NEUTRAL_ADJECTIVES = ['okay'];
 const BAD_ADJECTIVES = ['terrible', 'bad'];
 const ALL_ADJECTIVES = ['good', 'amazing', 'okay', 'terrible', 'bad'];
 const PERSONS = [
-  'Alice',
-  'Bob',
-  'Chris',
-  'Dani',
-  'Emma',
-  'Liam',
-  'Noah',
-  'Olivia',
-  'Mia',
-  'Lucas',
-  'Sophia',
-  'James',
-  'Emily',
-  'Daniel',
-  'Sarah',
-  'Michael',
-  'Anna',
-  'David',
-  'Laura',
-  'John',
-  'Lisa',
-  'Mark',
-  'Julia',
-  'Paul',
-  'Tom',
-  'Sam',
-  'Peter'
+  { name: 'Alice', pronoun: 'she' },
+  { name: 'Bob', pronoun: 'he' },
+  { name: 'Chris', pronoun: 'he' },
+  { name: 'Dani', pronoun: 'she' },
+  { name: 'Emma', pronoun: 'she' },
+  { name: 'Liam', pronoun: 'he' },
+  { name: 'Noah', pronoun: 'he' },
+  { name: 'Olivia', pronoun: 'she' },
+  { name: 'Mia', pronoun: 'she' },
+  { name: 'Lucas', pronoun: 'he' },
+  { name: 'Sophia', pronoun: 'she' },
+  { name: 'James', pronoun: 'he' },
+  { name: 'Emily', pronoun: 'she' },
+  { name: 'Daniel', pronoun: 'he' },
+  { name: 'Sarah', pronoun: 'she' },
+  { name: 'Michael', pronoun: 'he' },
+  { name: 'Anna', pronoun: 'she' },
+  { name: 'David', pronoun: 'he' },
+  { name: 'Laura', pronoun: 'she' },
+  { name: 'John', pronoun: 'he' },
+  { name: 'Lisa', pronoun: 'she' },
+  { name: 'Mark', pronoun: 'he' },
+  { name: 'Julia', pronoun: 'she' },
+  { name: 'Paul', pronoun: 'he' },
+  { name: 'Tom', pronoun: 'he' },
+  { name: 'Sam', pronoun: 'he' },
+  { name: 'Peter', pronoun: 'he' }
 ]; // 27 names
 
 const GOOD_EMOJIS = [
@@ -393,8 +316,8 @@ export default {
         for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
       } // 6 * 2 12 combos
 
-      const shuffledCombos = _.shuffle(combos).slice(0, 9); // total 27 combos, for checking here sliced until 9
-      const shuffledPersons = _.shuffle(PERSONS).slice(0, 9);
+      const shuffledCombos = _.shuffle(combos).slice(0, 15); // total 27 combos, for checking here sliced until 9
+      const shuffledPersons = _.shuffle(PERSONS).slice(0, 15);
 
       const nMain = shuffledCombos.length;
 
