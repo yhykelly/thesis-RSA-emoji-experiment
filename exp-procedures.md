@@ -252,7 +252,7 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp3b/
 Expected time to complete: **10 minutes**
 
 ### Trials
-#### Main Trials: 20 Trials  
+#### Main Trials: 15 Trials  
 - Stimulus: short event `context` + description consisting of `adjective` and `emoji`
 - Response: Two 9-point Likert Scales
     - Valence (negative/unpleasant <--> positive/pleasant)
