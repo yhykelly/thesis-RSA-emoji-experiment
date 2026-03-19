@@ -1,7 +1,7 @@
 <!-- experiment 3b: full interpretation, inferred emotion -->
 
 <template>
-  <Experiment title="rsa emoji experiment">
+  <Experiment title="rsa emoji experiment 3b">
     <InstructionScreen :title="'Welcome, nice to see you!'">
       <p>Thank you for participating in our experiment!</p>
       <p>
@@ -74,24 +74,32 @@
           </strong>
         </p>
 
-        <p>
+        <!-- <p>
           How negative or positive do you think {{ trial.person }} felt about
           the {{ trial.context.item }}?
+        </p> -->
+
+        <p>
+          To what extent do you think the description denotes something negative
+          or something positive?
         </p>
 
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          :left="`${trial.person} felt very negative/unpleasant`"
-          :right="`${trial.person} felt very positive/pleasant`"
+          :left="`very negative/unpleasant`"
+          :right="`very positive/pleasant`"
           :response.sync="trial.inferredValence"
         />
-        <p>How calm or arousing do you think that emotion was ?</p>
+        <p>
+          To what extent do you think the description denotes something passive
+          or something arousing?
+        </p>
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
-          left="The emotion was very calm/passive"
-          right="The emotion was very arousing/exciting"
+          left="very calm/passive"
+          right="very arousing/exciting"
           :response.sync="trial.inferredArousal"
         />
 
