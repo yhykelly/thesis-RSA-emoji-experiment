@@ -1,8 +1,10 @@
 # thesis-rsa-emoji-experiment
-link to experiments (currently only frontend implemented):
-1. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1a/
-2. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/
-3. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp2/
+link to experiments (currently only frontend implemented):  
+~1. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1a/~  
+~2. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp1b/~  
+~3. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp2/~  
+4. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp3a/  
+5. https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp3b/  
 
 [Procedures for the experiments](exp-procedures.md)
 
