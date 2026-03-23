@@ -80,26 +80,23 @@
         </p> -->
 
         <p>
-          To what extent do you think the description denotes something negative
-          or something positive?
+          How negative or positive do you think {{ trial.person }} felt about
+          the {{ trial.context.item }}?
         </p>
 
         <!-- <p style="margin-top: 18px"><strong>Valence</strong></p> -->
         <RatingInput
           :count="9"
-          :left="`very negative/unpleasant`"
-          :right="`very positive/pleasant`"
+          :left="`${trial.person} felt very negative/unpleasant`"
+          :right="`${trial.person} felt very positive/pleasant`"
           :response.sync="trial.inferredValence"
         />
-        <p>
-          To what extent do you think the description denotes something passive
-          or something arousing?
-        </p>
+        <p>How calm or arousing do you think that emotion was ?</p>
         <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
         <RatingInput
           :count="9"
-          left="very calm/passive"
-          right="very arousing/exciting"
+          left="The emotion was very calm/passive"
+          right="The emotion was very arousing/exciting"
           :response.sync="trial.inferredArousal"
         />
 
@@ -109,7 +106,7 @@
           @click="
             $magpie.measurements.context = trial.context.item;
             $magpie.measurements.adj = trial.adj;
-            $magpie.measurements.emoji = trial.emoji;
+            $magpie.measurements.emoji = trial.emoji ? trial.emoji : 'null';
             $magpie.measurements.inferredValence = trial.inferredValence;
             $magpie.measurements.inferredArousal = trial.inferredArousal;
             $magpie.measurements.trialType = trial.trialType;
@@ -192,11 +189,10 @@ const GOOD_EMOJIS = [
   'slightly_smiling_face',
   'smile',
   'relaxed',
-  'laughing',
-  'null'
+  'laughing'
 ];
 // possible combo = 1 * 3 = 3
-const NEUTRAL_EMOJIS = ['neutral_face', 'kissing', 'null'];
+const NEUTRAL_EMOJIS = ['neutral_face', 'kissing'];
 
 // possible combo = 2 * 6 = 12
 const BAD_EMOJIS = [
@@ -204,8 +200,7 @@ const BAD_EMOJIS = [
   'slightly_frowning_face',
   'weary',
   'white_frowning_face',
-  'angry',
-  'null'
+  'angry'
 ];
 
 const ALL_EMOJIS = [
@@ -249,20 +244,52 @@ export default {
 
   methods: {
     makeTrials() {
-      const combos = [];
+      // Round 1: shuffled list of all 5 adjectives
+      const firstList = _.shuffle([...ALL_ADJECTIVES]);
 
-      for (const adj of GOOD_ADJECTIVES) {
-        for (const emoji of GOOD_EMOJIS) combos.push({ adj, emoji });
-      }
-      for (const adj of BAD_ADJECTIVES) {
-        for (const emoji of BAD_EMOJIS) combos.push({ adj, emoji });
-      }
-      for (const emoji of NEUTRAL_EMOJIS) {
-        for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
+      // Round 2: reshuffle until first item differs from last of round 1
+      let secondList = _.shuffle([...ALL_ADJECTIVES]);
+      while (secondList[0] === firstList[firstList.length - 1]) {
+        secondList = _.shuffle([...ALL_ADJECTIVES]);
       }
 
-      const shuffledCombos = _.shuffle(combos).slice(0, 4);
-      const shuffledPersons = _.shuffle(PERSONS).slice(0, 4);
+      const getSentimentGroup = (adj) => {
+        if (GOOD_ADJECTIVES.includes(adj)) return 'good';
+        if (NEUTRAL_ADJECTIVES.includes(adj)) return 'neutral';
+        if (BAD_ADJECTIVES.includes(adj)) return 'bad';
+        throw new Error(`Unknown adjective: ${adj}`);
+      };
+
+      const sampleEmojiForAdjective = (adj) => {
+        const sentimentGroup = getSentimentGroup(adj);
+        if (sentimentGroup === 'good') {
+          return _.sample(GOOD_EMOJIS);
+        } else if (sentimentGroup === 'neutral') {
+          return _.sample(NEUTRAL_EMOJIS);
+        } else if (sentimentGroup === 'bad') {
+          return _.sample(BAD_EMOJIS);
+        }
+        throw new Error(`Unknown sentiment group: ${sentimentGroup}`);
+      };
+
+      const combinedItems = [
+        ...firstList.map((adj) => ({
+          adj,
+          emoji: sampleEmojiForAdjective(adj)
+        })),
+        ...secondList.map((adj) => ({
+          adj,
+          emoji: 'null'
+        }))
+      ];
+
+      const shuffledCombos = _.shuffle(combinedItems);
+
+      // Use unique persons for the 10 main trials
+      const shuffledPersons = _.shuffle(PERSONS).slice(
+        0,
+        shuffledCombos.length
+      );
 
       const nMain = shuffledCombos.length;
 

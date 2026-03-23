@@ -11,19 +11,44 @@
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
-    <InstructionScreen :title="'Instruction'">
+    <InstructionScreen id="instruction" :title="'Instruction'">
       <p>
-        On each trial, you will see a person's short comment describing an
+        On each trial, you will see a short comment written by a person about an
         experience (for example, a movie or a restaurant meal).
       </p>
-      <p>Your task is to judge:</p>
+      <p>You will be asked to make three judgments:</p>
       <ul>
         <li>
-          How the person has truly liked it (on a scale from 1
-          to 5 stars); and
+          How much the person
+          <strong>
+            truly liked the experience, as if they were giving a genuine rating
+            on a scale
+          </strong>
+          from 1 star (not at all) to 5 stars (very much).
         </li>
-        <li>What the person has aimed to communicate through the message.</li>
+        <li>
+          How likely it is that the person wanted to
+          <strong>communicate how much they liked it </strong>.
+        </li>
+        <li>
+          How likely it is that the person wanted to
+          <strong>communicate their emotional reaction</strong>.
+        </li>
+        <p>For example, if a person says:</p>
+        <p style="font-style: italic">"The book was boring."</p>
+        <p>
+          The person might be trying to
+          <strong>give a literal evaluation</strong> of the book. Alternatively,
+          they might be trying to
+          <strong>emphasize their emotional feeling</strong> about the book.
+        </p>
+        <p>
+          The person
+          <strong>may have more than one communicative goal </strong>at the same
+          time.
+        </p>
       </ul>
+
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
@@ -50,26 +75,27 @@
             </strong>
           </p>
 
-          <p>
-            Out of five stars, how do you think {{ trial.person.name }} would
-            have actually rated the experience?
+          <strong>
+            How do you think {{ trial.person.name }} would have truly liked the
+            experience?
+          </strong>
+          <p id="ratingReminder">
+            as if they were giving a genuine rating on a star scale from 1 star
+            (not at all) to 5 stars (very much)
           </p>
 
           <RatingInput
             :count="5"
-            left="1 star"
-            right="5 stars"
+            left="not at all"
+            right="very much"
             :response.sync="trial.inferredState"
           />
           <button
-            v-if="
-              trial.inferredState != null &&
-              trial.inferredState !== 0 
-            "
+            v-if="trial.inferredState != null && trial.inferredState !== 0"
             style="margin-top: 18px"
             @click="
               $magpie.measurements.context = trial.context.item;
-              $magpie.measurements.emoji = trial.emoji;
+              $magpie.measurements.emoji = trial.emoji ? trial.emoji : 'null';
               $magpie.measurements.adj = trial.adj;
               $magpie.measurements.trialType = trial.trialType;
               $magpie.measurements.attentionCheck = trial.attentionCheck;
@@ -110,28 +136,26 @@
           </div>
           <p>What do you think of {{ trial.person.name }}'s utterance?</p>
 
-          <p>
-            <strong>
-              On a scale from 1 star to 5 stars, how much did
-              {{ trial.person.name }} truly like the {{ trial.context.item }}?
-            </strong>
+          <strong>
+            How do you think {{ trial.person.name }} would have truly liked the
+            experience?
+          </strong>
+          <p id="ratingReminder">
+            as if they were giving a genuine rating on a star scale from 1 star
+            (not at all) to 5 stars (very much)
           </p>
 
           <RatingInput
             :count="5"
-            left="1 star"
-            right="5 stars"
+            left="not at all"
+            right="very much"
             :response.sync="trial.inferredState"
           />
 
-          <!-- <p id="ratingReminder">
-            Reminder: 1 star is the lowest possible rating and 5 stars is the
-            highest possible rating.
-          </p> -->
-
           <strong>
-            How likely did {{ trial.person.name }} want to communicate how much
-            {{ trial.person.pronoun }} liked the {{ trial.context.item }}?
+            How likely do you think {{ trial.person.name }} wanted to
+            communicate how {{ trial.person.pronoun }} liked the
+            {{ trial.context.item }}?
           </strong>
           <RatingInput
             :count="9"
@@ -142,7 +166,7 @@
 
           <strong>
             How likely did {{ trial.person.name }} want to communicate the
-            emotion that {{ trial.person.pronoun }} felt about the
+            emotion {{ trial.person.pronoun }} felt about the
             {{ trial.context.item }}?
           </strong>
           <RatingInput
@@ -164,7 +188,7 @@
             style="margin-top: 18px"
             @click="
               $magpie.measurements.context = trial.context.item;
-              $magpie.measurements.emoji = trial.emoji;
+              $magpie.measurements.emoji = trial.emoji ? trial.emoji : 'null';
               $magpie.measurements.adj = trial.adj;
               $magpie.measurements.trialType = trial.trialType;
               $magpie.measurements.attentionCheck = trial.attentionCheck;
@@ -248,19 +272,17 @@ const GOOD_EMOJIS = [
   'slightly_smiling_face',
   'smile',
   'relaxed',
-  'laughing',
-  'null'
+  'laughing'
 ];
 
-const NEUTRAL_EMOJIS = ['neutral_face', 'kissing', 'null'];
+const NEUTRAL_EMOJIS = ['neutral_face', 'kissing'];
 
 const BAD_EMOJIS = [
   'pensive',
   'slightly_frowning_face',
   'weary',
   'white_frowning_face',
-  'angry',
-  'null'
+  'angry'
 ];
 
 const ALL_EMOJIS = [
@@ -304,20 +326,68 @@ export default {
 
   methods: {
     makeTrials() {
-      const combos = [];
+      // update 20260322
+      // Round 1: shuffled list of all 5 adjectives
+      const firstList = _.shuffle([...ALL_ADJECTIVES]);
 
-      for (const adj of GOOD_ADJECTIVES) {
-        for (const emoji of GOOD_EMOJIS) combos.push({ adj, emoji });
-      } // 6 * 2 = 12 combos
-      for (const adj of BAD_ADJECTIVES) {
-        for (const emoji of BAD_EMOJIS) combos.push({ adj, emoji });
-      } // 3 * 1 = 3 combos
-      for (const emoji of NEUTRAL_EMOJIS) {
-        for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
-      } // 6 * 2 12 combos
+      // Round 2: reshuffle until first item differs from last of round 1
+      let secondList = _.shuffle([...ALL_ADJECTIVES]);
+      while (secondList[0] === firstList[firstList.length - 1]) {
+        secondList = _.shuffle([...ALL_ADJECTIVES]);
+      }
 
-      const shuffledCombos = _.shuffle(combos).slice(0, 15); // total 27 combos, for checking here sliced until 9
-      const shuffledPersons = _.shuffle(PERSONS).slice(0, 15);
+      const getSentimentGroup = (adj) => {
+        if (GOOD_ADJECTIVES.includes(adj)) return 'good';
+        if (NEUTRAL_ADJECTIVES.includes(adj)) return 'neutral';
+        if (BAD_ADJECTIVES.includes(adj)) return 'bad';
+        throw new Error(`Unknown adjective: ${adj}`);
+      };
+
+      const sampleEmojiForAdjective = (adj) => {
+        const sentimentGroup = getSentimentGroup(adj);
+        if (sentimentGroup === 'good') {
+          return _.sample(GOOD_EMOJIS);
+        } else if (sentimentGroup === 'neutral') {
+          return _.sample(NEUTRAL_EMOJIS);
+        } else if (sentimentGroup === 'bad') {
+          return _.sample(BAD_EMOJIS);
+        }
+        throw new Error(`Unknown sentiment group: ${sentimentGroup}`);
+      };
+
+      const combinedItems = [
+        ...firstList.map((adj) => ({
+          adj,
+          emoji: sampleEmojiForAdjective(adj)
+        })),
+        ...secondList.map((adj) => ({
+          adj,
+          emoji: 'null'
+        }))
+      ];
+
+      // original
+      // const combos = [];
+
+      // for (const adj of GOOD_ADJECTIVES) {
+      //   for (const emoji of GOOD_EMOJIS) combos.push({ adj, emoji });
+      // } // 6 * 2 = 12 combos
+      // for (const adj of BAD_ADJECTIVES) {
+      //   for (const emoji of BAD_EMOJIS) combos.push({ adj, emoji });
+      // } // 3 * 1 = 3 combos
+      // for (const emoji of NEUTRAL_EMOJIS) {
+      //   for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
+      // } // 6 * 2 12 combos
+
+      // const shuffledCombos = _.shuffle(combos).slice(0, 15); // total 27 combos, for checking here sliced until 9
+      // Shuffle final 10 items
+      const shuffledCombos = _.shuffle(combinedItems);
+
+      // Use unique persons for the 10 main trials
+      const shuffledPersons = _.shuffle(PERSONS).slice(
+        0,
+        shuffledCombos.length
+      );
 
       const nMain = shuffledCombos.length;
 
@@ -382,6 +452,10 @@ export default {
 /* #trial-state {
   font-style: italic;
 } */
+
+#instruction {
+  font-size: 16px;
+}
 
 #trial-emoji {
   font-size: 22px;
