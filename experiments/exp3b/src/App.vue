@@ -6,15 +6,15 @@
       <p>Thank you for participating in our experiment!</p>
       <p>
         In this experiment, you will be asked to judge the emotions of a person
-        who rated everyday experiences (like going to a restaurant) based on
-        short descriptions.
+        who gives a short comment on everyday experiences (like going to a
+        restaurant).
       </p>
       <p>Click “Next” to read the instructions.</p>
     </InstructionScreen>
 
     <InstructionScreen :title="'Instruction'">
       <p>
-        On each trial, you will see a person's short comment describing an
+        On each trial, you will see a short comment from a person describing an
         experience (for example, a movie or a restaurant meal).
       </p>
       <p>
@@ -66,11 +66,9 @@
                 {{ trial.emoji }}</span
               >.</span
             >
-            <p>
-              For this trial, please select {{ trial.attentionCheckV }} on the
-              scale for the first scale and {{ trial.attentionCheckA }} for the
-              second."
-            </p>
+
+            For this trial, please select {{ trial.attentionCheckV }} on the
+            scale"
           </strong>
         </p>
 
@@ -91,17 +89,23 @@
           :right="`${trial.person} felt very positive/pleasant`"
           :response.sync="trial.inferredValence"
         />
-        <p>How calm or arousing do you think that emotion was ?</p>
-        <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
-        <RatingInput
-          :count="9"
-          left="The emotion was very calm/passive"
-          right="The emotion was very arousing/exciting"
-          :response.sync="trial.inferredArousal"
-        />
-
+        <div v-if="trial.trialType === 'trial'">
+          <p>How calm or arousing do you think that emotion was ?</p>
+          <!-- <p style="margin-top: 18px"><strong>Arousal</strong></p> -->
+          <RatingInput
+            :count="9"
+            left="The emotion was very calm/passive"
+            right="The emotion was very arousing/exciting"
+            :response.sync="trial.inferredArousal"
+          />
+        </div>
+        <div v-else></div>
         <button
-          v-if="trial.inferredValence != 0 && trial.inferredArousal != 0"
+          v-if="
+            trial.trialType === 'trial'
+              ? trial.inferredValence != 0 && trial.inferredArousal != 0
+              : trial.inferredValence != 0
+          "
           style="margin-top: 18px"
           @click="
             $magpie.measurements.context = trial.context.item;
@@ -111,11 +115,9 @@
             $magpie.measurements.inferredArousal = trial.inferredArousal;
             $magpie.measurements.trialType = trial.trialType;
             $magpie.measurements.attentionCheckV = trial.attentionCheckV;
-            $magpie.measurements.attentionCheckA = trial.attentionCheckA;
             $magpie.measurements.isPassedAttention =
               trial.trialType === 'trial' ||
-              (trial.attentionCheckV === trial.inferredValence &&
-                trial.attentionCheckA === trial.inferredArousal);
+              trial.attentionCheckV === trial.inferredValence;
             $magpie.saveAndNextScreen();
           "
         >
@@ -285,13 +287,23 @@ export default {
 
       const shuffledCombos = _.shuffle(combinedItems);
 
+      const shuffledCombos1 = _.shuffle(shuffledCombos.slice(0, 5));
+      let shuffledCombos2 = _.shuffle(shuffledCombos.slice(5));
+      while (
+        shuffledCombos2[0] === shuffledCombos1[shuffledCombos1.length - 1]
+      ) {
+        shuffledCombos2 = _.shuffle(shuffledCombos2);
+      }
+
+      const finalShuffledCombos = [...shuffledCombos1, ...shuffledCombos2];
+
       // Use unique persons for the 10 main trials
       const shuffledPersons = _.shuffle(PERSONS).slice(
         0,
-        shuffledCombos.length
+        finalShuffledCombos.length
       );
 
-      const nMain = shuffledCombos.length;
+      const nMain = finalShuffledCombos.length;
 
       const attentionPositions = [
         Math.floor(nMain / 3),
@@ -305,7 +317,6 @@ export default {
         if (attentionPositions.includes(i)) {
           trials.push({
             trialType: 'attention',
-            attentionCheckA: _.sample(STATES),
             attentionCheckV: _.sample(STATES),
             person: _.sample(PERSONS),
             context: _.sample(CONTEXTS),
@@ -319,12 +330,11 @@ export default {
         // main trial
         trials.push({
           trialType: 'trial',
-          attentionCheckA: null,
           attentionCheckV: null,
           person: shuffledPersons[i], // unique per main trial
           context: _.sample(CONTEXTS),
-          adj: shuffledCombos[i].adj,
-          emoji: EMOJIS_MAPPING[shuffledCombos[i].emoji],
+          adj: finalShuffledCombos[i].adj,
+          emoji: EMOJIS_MAPPING[finalShuffledCombos[i].emoji],
           inferredArousal: 0,
           inferredValence: 0
         });

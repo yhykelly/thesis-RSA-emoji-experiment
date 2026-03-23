@@ -367,29 +367,27 @@ export default {
       ];
 
       // original
-      // const combos = [];
 
-      // for (const adj of GOOD_ADJECTIVES) {
-      //   for (const emoji of GOOD_EMOJIS) combos.push({ adj, emoji });
-      // } // 6 * 2 = 12 combos
-      // for (const adj of BAD_ADJECTIVES) {
-      //   for (const emoji of BAD_EMOJIS) combos.push({ adj, emoji });
-      // } // 3 * 1 = 3 combos
-      // for (const emoji of NEUTRAL_EMOJIS) {
-      //   for (const adj of NEUTRAL_ADJECTIVES) combos.push({ adj, emoji });
-      // } // 6 * 2 12 combos
-
-      // const shuffledCombos = _.shuffle(combos).slice(0, 15); // total 27 combos, for checking here sliced until 9
       // Shuffle final 10 items
       const shuffledCombos = _.shuffle(combinedItems);
+
+      const shuffledCombos1 = _.shuffle(shuffledCombos.slice(0, 5));
+      let shuffledCombos2 = _.shuffle(shuffledCombos.slice(5));
+      while (
+        shuffledCombos2[0] === shuffledCombos1[shuffledCombos1.length - 1]
+      ) {
+        shuffledCombos2 = _.shuffle(shuffledCombos2);
+      }
+
+      const finalShuffledCombos = [...shuffledCombos1, ...shuffledCombos2];
 
       // Use unique persons for the 10 main trials
       const shuffledPersons = _.shuffle(PERSONS).slice(
         0,
-        shuffledCombos.length
+        finalShuffledCombos.length
       );
 
-      const nMain = shuffledCombos.length;
+      const nMain = finalShuffledCombos.length;
 
       const attentionPositions = [
         Math.floor(nMain / 3),
@@ -421,8 +419,8 @@ export default {
           attentionCheck: null,
           person: shuffledPersons[i], // unique per main trial
           context: _.sample(CONTEXTS),
-          adj: shuffledCombos[i].adj,
-          emoji: EMOJIS_MAPPING[shuffledCombos[i].emoji],
+          adj: finalShuffledCombos[i].adj,
+          emoji: EMOJIS_MAPPING[finalShuffledCombos[i].emoji],
           inferredState: 0,
           inferredGoalState: 0,
           inferredGoalVelnceArousal: 0,
