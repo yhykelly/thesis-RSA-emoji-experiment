@@ -154,7 +154,7 @@
 
           <strong>
             How likely do you think {{ trial.person.name }} wanted to
-            communicate how {{ trial.person.pronoun }} liked the
+            communicate how much {{ trial.person.pronoun }} liked the
             {{ trial.context.item }}?
           </strong>
           <RatingInput
