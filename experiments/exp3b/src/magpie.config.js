@@ -3,9 +3,9 @@ export default {
   serverUrl: 'https://magpie-cogsciprag.fly.dev',
   socketUrl: 'wss://magpie-cogsciprag.fly.dev/socket',
   // this will be used in prolific mode
-  completionUrl: 'https://...',
-  contactEmail: 'test@random.com',
+  completionUrl: 'https://app.prolific.com/submissions/complete?cc=CVZ2ZGX8',
+  contactEmail: 'hening.wang@outlook.com',
   // Either 'debug', 'directLink' or 'prolific'
-  mode: 'debug',
+  mode: 'prolific',
   language: 'en'
 };
