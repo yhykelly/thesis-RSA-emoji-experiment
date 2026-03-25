@@ -38,8 +38,8 @@
         <p style="font-style: italic">"The book was boring."</p>
         <p>
           The person might be trying to
-          <strong>give a literal evaluation</strong> of the book. Alternatively,
-          they might be trying to
+          <strong>report their impression of the quality</strong> of the book.
+          Alternatively, they might be trying to
           <strong>emphasize their emotional feeling</strong> about the book.
         </p>
         <p>
