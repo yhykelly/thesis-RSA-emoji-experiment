@@ -104,8 +104,8 @@
               $magpie.measurements.trialType = trial.trialType;
               $magpie.measurements.attentionCheck = trial.attentionCheck;
               $magpie.measurements.inferredState = trial.inferredState;
-              $magpie.measurements.goalState = trial.goalState;
-              $magpie.measurements.goalEmotion = trial.goalEmotion;
+              $magpie.measurements.goalState = 'null';
+              $magpie.measurements.goalEmotion = 'null';
               $magpie.measurements.isPassedAttention =
                 trial.trialType === 'trial' ||
                 trial.attentionCheck === trial.inferredState;
