@@ -39,7 +39,11 @@
     <!-- and display a screen with a slider rating task
              using the built-in SliderScreen component -->
 
-    <Screen v-for="(trial, i) in trials" :key="i">
+    <Screen
+      v-for="(trial, i) in trials"
+      :key="i"
+      :progress="(i + 1) / trials.length"
+    >
       <Slide>
         <p id="trial-context"></p>
         <p>

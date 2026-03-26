@@ -52,7 +52,11 @@
       <p>Click “Next” to begin.</p>
     </InstructionScreen>
 
-    <Screen v-for="(trial, i) in trials" :key="i">
+    <Screen
+      v-for="(trial, i) in trials"
+      :key="i"
+      :progress="(i + 1) / trials.length"
+    >
       <!-- ATTENTION CHECK -->
       <Slide>
         <div v-if="trial.trialType === 'attention'">

@@ -160,11 +160,11 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp3a/
 4. Demographics screen
 5. Final "further comment" (optional) and Submit screen  
 
-Expected time to complete: **10 minutes**
+Expected time to complete: **5 minutes**
 
 ### Trials
-#### Main Trials: 15 Trials  
-- Stimulus: short event `context` + description consisting of `adjective` and `emoji`
+#### Main Trials: 10 Trials  
+- Stimulus: short event `context` + description consisting of `adjective` and `emoji`, 2 trials per adjective, one with a congruent emoji and one without an emoji.
 - Response: 
     - 1 5-point Likert Scale assessing true state inference  (1 star - 5 stars)
     - 2 9-point Likert Scale assessing the goal inference (very unlikely - very likely)
@@ -249,11 +249,11 @@ https://yhykelly.github.io/thesis-RSA-emoji-experiment/experiments/exp3b/
 4. Demographics screen
 5. Final "further comment" (optional) and Submit screen  
 
-Expected time to complete: **10 minutes**
+Expected time to complete: **5 minutes**
 
 ### Trials
-#### Main Trials: 15 Trials  
-- Stimulus: short event `context` + description consisting of `adjective` and `emoji`
+#### Main Trials: 10 Trials  
+- Stimulus: short event `context` + description consisting of `adjective` and `emoji`, 2 trials per adjective, one with a congruent emoji and one without an emoji.
 - Response: Two 9-point Likert Scales
     - Valence (negative/unpleasant <--> positive/pleasant)
     - Arousal (calm/passive <--> intense/exciting)
